@@ -15,13 +15,13 @@ from concurrent import futures
 
 # Create a class to define the server functions, derived from
 # fraud_detection_pb2_grpc.HelloServiceServicer
-class HelloService(fraud_detection_grpc.HelloServiceServicer):
+class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     # Create an RPC function to say hello
-    def SayHello(self, request, context):
+    def DetectFraud(self, request, context):
         # Create a HelloResponse object
-        response = fraud_detection.HelloResponse()
+        response = fraud_detection.DetectFraudResponse()
         # Set the greeting field of the response object
-        response.greeting = "Hello, " + request.name
+        response.isLegit = True
         # Print the greeting message
         print(response.greeting)
         # Return the response object
@@ -31,7 +31,7 @@ def serve():
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add HelloService
-    fraud_detection_grpc.add_HelloServiceServicer_to_server(HelloService(), server)
+    fraud_detection_grpc.add_FraudDetectionServer_to_server(FraudDetectionService(), server)
     # Listen on port 50051
     port = "50051"
     server.add_insecure_port("[::]:" + port)
