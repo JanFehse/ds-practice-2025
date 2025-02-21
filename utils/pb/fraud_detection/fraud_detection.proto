@@ -1,15 +1,24 @@
 syntax = "proto3";
 
-package hello;
+package bookstore;
 
-service HelloService {
-    rpc SayHello (HelloRequest) returns (HelloResponse);
+service FraudDetectionService {
+    rpc DetectFraud (DetectFraudRequest) returns (DetectFraudResponse);
 }
 
-message HelloRequest {
-    string name = 1;
+message DetectFraudRequest {
+    string CreditCardNumber = 1;
+    BillingAdress BillingAdress = 2;
 }
 
-message HelloResponse {
-    string greeting = 1;
+message DetectFraudResponse {
+    bool isLegit = 1;
+}
+
+message BillingAdress {
+    string street = 1;
+    string city = 2;
+    string state = 3;
+    string zip = 4;
+    string country = 5;
 }
