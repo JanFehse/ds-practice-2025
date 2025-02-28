@@ -36,8 +36,8 @@ def serve():
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add HelloService
-    transaction_verification_grpc.add_HelloServiceServicer_to_server(
-        HelloService(), server
+    transaction_verification_grpc.add_TransactionVerificationServiceServicer_to_server(
+        TransactionVerificationService(), server
     )
     # Listen on port 50052
     port = "50052"
