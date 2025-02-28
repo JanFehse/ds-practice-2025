@@ -25,7 +25,7 @@ if _version_not_supported:
     )
 
 
-class HelloServiceStub(object):
+class SuggestionsServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,43 +34,43 @@ class HelloServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SayHello = channel.unary_unary(
-                '/hello.HelloService/SayHello',
-                request_serializer=suggestions__pb2.HelloRequest.SerializeToString,
-                response_deserializer=suggestions__pb2.HelloResponse.FromString,
+        self.GetSuggestions = channel.unary_unary(
+                '/bookstore.SuggestionsService/GetSuggestions',
+                request_serializer=suggestions__pb2.SuggestionsRequest.SerializeToString,
+                response_deserializer=suggestions__pb2.SuggestionsResponse.FromString,
                 _registered_method=True)
 
 
-class HelloServiceServicer(object):
+class SuggestionsServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SayHello(self, request, context):
+    def GetSuggestions(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_HelloServiceServicer_to_server(servicer, server):
+def add_SuggestionsServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SayHello': grpc.unary_unary_rpc_method_handler(
-                    servicer.SayHello,
-                    request_deserializer=suggestions__pb2.HelloRequest.FromString,
-                    response_serializer=suggestions__pb2.HelloResponse.SerializeToString,
+            'GetSuggestions': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSuggestions,
+                    request_deserializer=suggestions__pb2.SuggestionsRequest.FromString,
+                    response_serializer=suggestions__pb2.SuggestionsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'hello.HelloService', rpc_method_handlers)
+            'bookstore.SuggestionsService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('hello.HelloService', rpc_method_handlers)
+    server.add_registered_method_handlers('bookstore.SuggestionsService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class HelloService(object):
+class SuggestionsService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SayHello(request,
+    def GetSuggestions(request,
             target,
             options=(),
             channel_credentials=None,
@@ -83,9 +83,9 @@ class HelloService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/hello.HelloService/SayHello',
-            suggestions__pb2.HelloRequest.SerializeToString,
-            suggestions__pb2.HelloResponse.FromString,
+            '/bookstore.SuggestionsService/GetSuggestions',
+            suggestions__pb2.SuggestionsRequest.SerializeToString,
+            suggestions__pb2.SuggestionsResponse.FromString,
             options,
             channel_credentials,
             insecure,

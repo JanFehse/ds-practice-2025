@@ -24,17 +24,19 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11suggestions.proto\x12\x05hello\"\x1c\n\x0cHelloRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"!\n\rHelloResponse\x12\x10\n\x08greeting\x18\x01 \x01(\t2E\n\x0cHelloService\x12\x35\n\x08SayHello\x12\x13.hello.HelloRequest\x1a\x14.hello.HelloResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11suggestions.proto\x12\tbookstore\":\n\x12SuggestionsRequest\x12$\n\x0b\x62ooksInCart\x18\x01 \x03(\x0b\x32\x0f.bookstore.Book\">\n\x13SuggestionsResponse\x12\'\n\x0e\x62ooksSuggested\x18\x01 \x03(\x0b\x32\x0f.bookstore.Book\"5\n\x04\x42ook\x12\x0e\n\x06\x62ookId\x18\x01 \x01(\x03\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x03 \x01(\t2e\n\x12SuggestionsService\x12O\n\x0eGetSuggestions\x12\x1d.bookstore.SuggestionsRequest\x1a\x1e.bookstore.SuggestionsResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'suggestions_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_HELLOREQUEST']._serialized_start=28
-  _globals['_HELLOREQUEST']._serialized_end=56
-  _globals['_HELLORESPONSE']._serialized_start=58
-  _globals['_HELLORESPONSE']._serialized_end=91
-  _globals['_HELLOSERVICE']._serialized_start=93
-  _globals['_HELLOSERVICE']._serialized_end=162
+  _globals['_SUGGESTIONSREQUEST']._serialized_start=32
+  _globals['_SUGGESTIONSREQUEST']._serialized_end=90
+  _globals['_SUGGESTIONSRESPONSE']._serialized_start=92
+  _globals['_SUGGESTIONSRESPONSE']._serialized_end=154
+  _globals['_BOOK']._serialized_start=156
+  _globals['_BOOK']._serialized_end=209
+  _globals['_SUGGESTIONSSERVICE']._serialized_start=211
+  _globals['_SUGGESTIONSSERVICE']._serialized_end=312
 # @@protoc_insertion_point(module_scope)
