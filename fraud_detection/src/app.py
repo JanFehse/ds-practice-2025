@@ -21,8 +21,10 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         # Create a DetectFraudResponse object
         response = fraud_detection.DetectFraudResponse()
         # Set the greeting field of the response object
+        print(request)
+
+
         response.isLegit = True
-        # Print the greeting message
         print('isLegit = ', response.isLegit)
         # Return the response object
         return response

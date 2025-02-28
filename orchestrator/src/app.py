@@ -28,45 +28,59 @@ import transaction_verification_pb2_grpc as transaction_verification_grpc
 import grpc
 
 
-def detectFraud(Credit_Card_Number):
+def detectFraud(Credit_Card_Number, billingaddress):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("fraud_detection:50051") as channel:
         # Create a stub object.
-        print("wir sind da")
+        print("-- Call fraud detection --")
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
-        Billing_Address = fraud_detection.BillingAddress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
+        Billing_Address = fraud_detection.BillingAddress(
+            street = billingaddress.get("street"), 
+            city = billingaddress.get("city"),
+            state = billingaddress.get("state"), 
+            zip = billingaddress.get("zip"),
+            country=billingaddress.get("country"))
         request = fraud_detection.DetectFraudRequest(BillingAddress=Billing_Address, CreditCardNumber=Credit_Card_Number)
 
         response = stub.DetectFraud(request)
     return response.isLegit
 
-def getSuggestions():
+def getSuggestions(books_json):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("suggestions:50053") as channel:
         # Create a stub object.
-        print("wir sind da")
+        print("-- Call suggestions --")
         stub = suggestions_grpc.SuggestionsServiceStub(channel)
         # Call the service through the stub object.
-        books = [
-            suggestions.Book(bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"),
-            suggestions.Book(bookId=102, title="1984", author="George Orwell"),
-            suggestions.Book(bookId=103, title="To Kill a Mockingbird", author="Harper Lee")
-        ]
+        books = []
+        for book in books_json:
+            books.append(suggestions.Book(bookId = 123,
+                                          title = book.get("name"),
+                                          author = "John Doe"))
 
         request = suggestions.SuggestionsRequest(booksInCart=books)
         response = stub.GetSuggestions(request)
     return response.booksSuggested
 
-def verifyTransaction():
+def verifyTransaction(creditCard, name, billingaddress):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("transaction_verification:50052") as channel:
         # Create a stub object.
-        print("wir sind da")
+        print("-- call transaction verification --")
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
-        Billing_Address = transaction_verification.BillingAddress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
-        request = transaction_verification.TransactionRequest(name = "abc", CreditCardNumber = "123", expirationDate = "abc", cvv = "aaa", BillingAddress=Billing_Address)
+        Billing_Address = transaction_verification.BillingAddress(
+            street = billingaddress.get("street"), 
+            city = billingaddress.get("city"),
+            state = billingaddress.get("state"), 
+            zip = billingaddress.get("zip"),
+            country=billingaddress.get("country"))
+        request = transaction_verification.TransactionRequest(name = name, 
+                            CreditCardNumber = creditCard.get("number"), 
+                            expirationDate = creditCard.get("expirationDate"), 
+                            cvv = creditCard.get("cvv"), 
+                            BillingAddress=Billing_Address)
 
         response = stub.VerifyTransaction(request)
     return response.transactionVerified
@@ -86,18 +100,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-# Define a GET endpoint.
-@app.route("/", methods=["GET"])
-def index():
-    """
-    Responds with 'Hello, [name]' when a GET request is made to '/' endpoint.
-    """
-    # Test the fraud-detection gRPC service.
-    response = greet(name="orchestrator")
-    # Return the response.
-    return response
-
-
 @app.route("/checkout", methods=["POST"])
 def checkout():
     """
@@ -108,14 +110,14 @@ def checkout():
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
-    isLegit = detectFraud("123456")
+    isLegit = detectFraud(request_data.get("creditCard").get("number"), request_data.get("billingAddress"))
     print ("IsLegit: ", isLegit)
 
-    print(getSuggestions())
+    suggestions = getSuggestions(request_data.get("items"))
+    print("suggestions:", suggestions)
 
-    print("veryfied: ", verifyTransaction())
-
-    isLegit = detectFraud("123456")
+    verified = verifyTransaction(request_data.get("creditCard"), request_data.get("name"), request_data.get("billingAddress"))
+    print("verified: ", verified)
     # Rest of task logic
 
     # Spawn new thread for each microservice

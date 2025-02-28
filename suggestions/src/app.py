@@ -20,6 +20,8 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
     def GetSuggestions(self, request, context):
         # Create a SuggestionsResponse object
         response = suggestions.SuggestionsResponse()
+        for book in request.booksInCart:
+            print(f"Book in Cart: {book.title} by {book.author}")
         # Set the booksSuggested field of the response object
         suggested_books = [
             suggestions.Book(bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"),
