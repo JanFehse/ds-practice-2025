@@ -24,17 +24,19 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x05hello\"\x1c\n\x0cHelloRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"!\n\rHelloResponse\x12\x10\n\x08greeting\x18\x01 \x01(\t2E\n\x0cHelloService\x12\x35\n\x08SayHello\x12\x13.hello.HelloRequest\x1a\x14.hello.HelloResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x05hello\"\x90\x01\n\x12TransactionRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x18\n\x10\x43reditCardNumber\x18\x02 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x03 \x01(\t\x12\x0b\n\x03\x63vv\x18\x04 \x01(\t\x12-\n\x0e\x62illingAddress\x18\x05 \x01(\x0b\x32\x15.hello.BillingAddress\"2\n\x13TransactionResponse\x12\x1b\n\x13transactionVerified\x18\x01 \x01(\x08\"[\n\x0e\x42illingAddress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t2l\n\x1eTransactionVerificationService\x12J\n\x11VerifyTransaction\x12\x19.hello.TransactionRequest\x1a\x1a.hello.TransactionResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'transaction_verification_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_HELLOREQUEST']._serialized_start=41
-  _globals['_HELLOREQUEST']._serialized_end=69
-  _globals['_HELLORESPONSE']._serialized_start=71
-  _globals['_HELLORESPONSE']._serialized_end=104
-  _globals['_HELLOSERVICE']._serialized_start=106
-  _globals['_HELLOSERVICE']._serialized_end=175
+  _globals['_TRANSACTIONREQUEST']._serialized_start=42
+  _globals['_TRANSACTIONREQUEST']._serialized_end=186
+  _globals['_TRANSACTIONRESPONSE']._serialized_start=188
+  _globals['_TRANSACTIONRESPONSE']._serialized_end=238
+  _globals['_BILLINGADDRESS']._serialized_start=240
+  _globals['_BILLINGADDRESS']._serialized_end=331
+  _globals['_TRANSACTIONVERIFICATIONSERVICE']._serialized_start=333
+  _globals['_TRANSACTIONVERIFICATIONSERVICE']._serialized_end=441
 # @@protoc_insertion_point(module_scope)
