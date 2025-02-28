@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import sys
 import os
 
@@ -110,14 +111,19 @@ def checkout():
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
-    isLegit = detectFraud(request_data.get("creditCard").get("number"), request_data.get("billingAddress"))
-    print ("IsLegit: ", isLegit)
 
-    suggestions = getSuggestions(request_data.get("items"))
-    print("suggestions:", suggestions)
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        future_isLegit = executor.submit(detectFraud,request_data.get("creditCard").get("number"), request_data.get("billingAddress"))
+        future_suggestions = executor.submit(getSuggestions,request_data.get("items"))
+        future_verified = executor.submit(verifyTransaction, request_data.get("creditCard"), request_data.get("name"), request_data.get("billingAddress"))
 
-    verified = verifyTransaction(request_data.get("creditCard"), request_data.get("name"), request_data.get("billingAddress"))
+        isLegit = future_isLegit.result()
+        suggestions = future_suggestions.result()
+        verified = future_verified.result()
+
     print("verified: ", verified)
+    print ("IsLegit: ", isLegit)
+    print("suggestions:", suggestions)
     # Rest of task logic
 
     # Spawn new thread for each microservice
