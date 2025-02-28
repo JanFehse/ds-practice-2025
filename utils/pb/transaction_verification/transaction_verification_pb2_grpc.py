@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import transaction_verification_pb2 as transaction__verification__pb2
+from transaction_verification import transaction_verification_pb2 as transaction__verification_dot_transaction__verification__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in transaction_verification_pb2_grpc.py depends on'
+        + f' but the generated code in transaction_verification/transaction_verification_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -35,9 +35,9 @@ class TransactionVerificationServiceStub(object):
             channel: A grpc.Channel.
         """
         self.VerifyTransaction = channel.unary_unary(
-                '/hello.TransactionVerificationService/VerifyTransaction',
-                request_serializer=transaction__verification__pb2.TransactionRequest.SerializeToString,
-                response_deserializer=transaction__verification__pb2.TransactionResponse.FromString,
+                '/bookstore.TransactionVerificationService/VerifyTransaction',
+                request_serializer=transaction__verification_dot_transaction__verification__pb2.TransactionRequest.SerializeToString,
+                response_deserializer=transaction__verification_dot_transaction__verification__pb2.TransactionResponse.FromString,
                 _registered_method=True)
 
 
@@ -55,14 +55,14 @@ def add_TransactionVerificationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'VerifyTransaction': grpc.unary_unary_rpc_method_handler(
                     servicer.VerifyTransaction,
-                    request_deserializer=transaction__verification__pb2.TransactionRequest.FromString,
-                    response_serializer=transaction__verification__pb2.TransactionResponse.SerializeToString,
+                    request_deserializer=transaction__verification_dot_transaction__verification__pb2.TransactionRequest.FromString,
+                    response_serializer=transaction__verification_dot_transaction__verification__pb2.TransactionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'hello.TransactionVerificationService', rpc_method_handlers)
+            'bookstore.TransactionVerificationService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('hello.TransactionVerificationService', rpc_method_handlers)
+    server.add_registered_method_handlers('bookstore.TransactionVerificationService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -83,9 +83,9 @@ class TransactionVerificationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/hello.TransactionVerificationService/VerifyTransaction',
-            transaction__verification__pb2.TransactionRequest.SerializeToString,
-            transaction__verification__pb2.TransactionResponse.FromString,
+            '/bookstore.TransactionVerificationService/VerifyTransaction',
+            transaction__verification_dot_transaction__verification__pb2.TransactionRequest.SerializeToString,
+            transaction__verification_dot_transaction__verification__pb2.TransactionResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -4,11 +4,13 @@ import os
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
-FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
-suggestions_grpc_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
-sys.path.insert(0, suggestions_grpc_path)
-import suggestions_pb2 as suggestions
-import suggestions_pb2_grpc as suggestions_grpc
+FILE = __file__ if "__file__" in globals() else os.getenv("PYTHONFILE", "")
+grpc_path = os.path.abspath(
+    os.path.join(FILE, "../../../utils/pb")
+)
+sys.path.insert(0, grpc_path)
+import suggestions.suggestions_pb2 as suggestions
+import suggestions.suggestions_pb2_grpc as suggestions_grpc
 
 import grpc
 from concurrent import futures

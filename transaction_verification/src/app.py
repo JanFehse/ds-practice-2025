@@ -5,12 +5,14 @@ import os
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
 FILE = __file__ if "__file__" in globals() else os.getenv("PYTHONFILE", "")
-transaction_verification_grpc_path = os.path.abspath(
-    os.path.join(FILE, "../../../utils/pb/transaction_verification")
+grpc_path = os.path.abspath(
+    os.path.join(FILE, "../../../utils/pb")
 )
-sys.path.insert(0, transaction_verification_grpc_path)
-import transaction_verification_pb2 as transaction_verification
-import transaction_verification_pb2_grpc as transaction_verification_grpc
+sys.path.insert(0, grpc_path)
+import shared.order_pb2 as order
+import shared.order_pb2_grpc as order_grpc
+import transaction_verification.transaction_verification_pb2 as transaction_verification
+import transaction_verification.transaction_verification_pb2_grpc as transaction_verification_grpc
 
 import grpc
 from concurrent import futures
