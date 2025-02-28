@@ -124,6 +124,7 @@ def checkout():
     print("verified: ", verified)
     print ("IsLegit: ", isLegit)
     print("suggestions:", suggestions)
+    
     # Rest of task logic
 
     # Spawn new thread for each microservice
@@ -133,13 +134,23 @@ def checkout():
     # Return the response
 
     # Dummy response following the provided YAML specification for the bookstore
+
+    if not isLegit or not verified:
+        return {
+            "orderId": "12345",
+            "status": "Order Rejected",
+            "suggestedBooks": []
+        }
+    
+    suggested_books = []
+    for book in suggestions:
+        suggested_books.append({"bookId": book.bookId, "title": book.title, "author": book.author})
+
+    #ids noch machen
     order_status_response = {
         "orderId": "12345",
         "status": "Order Approved",
-        "suggestedBooks": [
-            {"bookId": "123", "title": "The Best Book", "author": "Author 1"},
-            {"bookId": "456", "title": "The Second Best Book", "author": "Author 2"},
-        ],
+        "suggestedBooks": suggested_books,
     }
 
     return order_status_response
