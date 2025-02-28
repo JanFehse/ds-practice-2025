@@ -15,20 +15,18 @@ import fraud_detection_pb2_grpc as fraud_detection_grpc
 import grpc
 
 
-def detectFraud(CreditCardNumber):
+def detectFraud(Credit_Card_Number):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("fraud_detection:50051") as channel:
         # Create a stub object.
-        stub = fraud_detection_grpc.FraudDetectionStub(channel)
+        print("wir sind da")
+        stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
-        request = fraud_detection.DetectFraudRequest()
-
-        request.CreditCardNumber = CreditCardNumber
-        BillingAdress = fraud_detection.BillingAdress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
-        request.BillingAdress = BillingAdress
+        Billing_Adress = fraud_detection.BillingAdress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
+        request = fraud_detection.DetectFraudRequest(BillingAdress=Billing_Adress, CreditCardNumber=Credit_Card_Number)
 
         response = stub.DetectFraud(request)
-    return response.greeting
+    return response.isLegit
 
 
 # Import Flask.
@@ -63,6 +61,7 @@ def checkout():
     Responds with a JSON object containing the order ID, status, and suggested books.
     """
     # Get request object data to json
+    print("testing")
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
