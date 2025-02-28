@@ -5,12 +5,12 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DetectFraudRequest(_message.Message):
-    __slots__ = ("CreditCardNumber", "BillingAdress")
+    __slots__ = ("CreditCardNumber", "BillingAddress")
     CREDITCARDNUMBER_FIELD_NUMBER: _ClassVar[int]
-    BILLINGADRESS_FIELD_NUMBER: _ClassVar[int]
+    BILLINGADDRESS_FIELD_NUMBER: _ClassVar[int]
     CreditCardNumber: str
-    BillingAdress: BillingAdress
-    def __init__(self, CreditCardNumber: _Optional[str] = ..., BillingAdress: _Optional[_Union[BillingAdress, _Mapping]] = ...) -> None: ...
+    BillingAddress: BillingAddress
+    def __init__(self, CreditCardNumber: _Optional[str] = ..., BillingAddress: _Optional[_Union[BillingAddress, _Mapping]] = ...) -> None: ...
 
 class DetectFraudResponse(_message.Message):
     __slots__ = ("isLegit",)
@@ -18,7 +18,7 @@ class DetectFraudResponse(_message.Message):
     isLegit: bool
     def __init__(self, isLegit: bool = ...) -> None: ...
 
-class BillingAdress(_message.Message):
+class BillingAddress(_message.Message):
     __slots__ = ("street", "city", "state", "zip", "country")
     STREET_FIELD_NUMBER: _ClassVar[int]
     CITY_FIELD_NUMBER: _ClassVar[int]

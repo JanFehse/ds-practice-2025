@@ -11,7 +11,7 @@ message TransactionRequest {
     string CreditCardNumber = 2;
     string expirationDate = 3;
     string cvv = 4;
-    BillingAddress billingAddress = 5;
+    BillingAddress BillingAddress = 5;
 }
 
 message TransactionResponse {

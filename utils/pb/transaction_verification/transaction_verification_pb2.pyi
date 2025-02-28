@@ -5,7 +5,7 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class TransactionRequest(_message.Message):
-    __slots__ = ("name", "CreditCardNumber", "expirationDate", "cvv", "billingAddress")
+    __slots__ = ("name", "CreditCardNumber", "expirationDate", "cvv", "BillingAddress")
     NAME_FIELD_NUMBER: _ClassVar[int]
     CREDITCARDNUMBER_FIELD_NUMBER: _ClassVar[int]
     EXPIRATIONDATE_FIELD_NUMBER: _ClassVar[int]
@@ -15,8 +15,8 @@ class TransactionRequest(_message.Message):
     CreditCardNumber: str
     expirationDate: str
     cvv: str
-    billingAddress: BillingAddress
-    def __init__(self, name: _Optional[str] = ..., CreditCardNumber: _Optional[str] = ..., expirationDate: _Optional[str] = ..., cvv: _Optional[str] = ..., billingAddress: _Optional[_Union[BillingAddress, _Mapping]] = ...) -> None: ...
+    BillingAddress: BillingAddress
+    def __init__(self, name: _Optional[str] = ..., CreditCardNumber: _Optional[str] = ..., expirationDate: _Optional[str] = ..., cvv: _Optional[str] = ..., BillingAddress: _Optional[_Union[BillingAddress, _Mapping]] = ...) -> None: ...
 
 class TransactionResponse(_message.Message):
     __slots__ = ("transactionVerified",)

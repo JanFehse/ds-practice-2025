@@ -8,14 +8,14 @@ service FraudDetectionService {
 
 message DetectFraudRequest {
     string CreditCardNumber = 1;
-    BillingAdress BillingAdress = 2;
+    BillingAddress BillingAddress = 2;
 }
 
 message DetectFraudResponse {
     bool isLegit = 1;
 }
 
-message BillingAdress {
+message BillingAddress {
     string street = 1;
     string city = 2;
     string state = 3;

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x66raud_detection.proto\x12\tbookstore\"_\n\x12\x44\x65tectFraudRequest\x12\x18\n\x10\x43reditCardNumber\x18\x01 \x01(\t\x12/\n\rBillingAdress\x18\x02 \x01(\x0b\x32\x18.bookstore.BillingAdress\"&\n\x13\x44\x65tectFraudResponse\x12\x0f\n\x07isLegit\x18\x01 \x01(\x08\"Z\n\rBillingAdress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t2e\n\x15\x46raudDetectionService\x12L\n\x0b\x44\x65tectFraud\x12\x1d.bookstore.DetectFraudRequest\x1a\x1e.bookstore.DetectFraudResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x66raud_detection.proto\x12\tbookstore\"a\n\x12\x44\x65tectFraudRequest\x12\x18\n\x10\x43reditCardNumber\x18\x01 \x01(\t\x12\x31\n\x0e\x42illingAddress\x18\x02 \x01(\x0b\x32\x19.bookstore.BillingAddress\"&\n\x13\x44\x65tectFraudResponse\x12\x0f\n\x07isLegit\x18\x01 \x01(\x08\"[\n\x0e\x42illingAddress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t2e\n\x15\x46raudDetectionService\x12L\n\x0b\x44\x65tectFraud\x12\x1d.bookstore.DetectFraudRequest\x1a\x1e.bookstore.DetectFraudResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,11 +32,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'fraud_detection_pb2', _glob
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_DETECTFRAUDREQUEST']._serialized_start=36
-  _globals['_DETECTFRAUDREQUEST']._serialized_end=131
-  _globals['_DETECTFRAUDRESPONSE']._serialized_start=133
-  _globals['_DETECTFRAUDRESPONSE']._serialized_end=171
-  _globals['_BILLINGADRESS']._serialized_start=173
-  _globals['_BILLINGADRESS']._serialized_end=263
-  _globals['_FRAUDDETECTIONSERVICE']._serialized_start=265
-  _globals['_FRAUDDETECTIONSERVICE']._serialized_end=366
+  _globals['_DETECTFRAUDREQUEST']._serialized_end=133
+  _globals['_DETECTFRAUDRESPONSE']._serialized_start=135
+  _globals['_DETECTFRAUDRESPONSE']._serialized_end=173
+  _globals['_BILLINGADDRESS']._serialized_start=175
+  _globals['_BILLINGADDRESS']._serialized_end=266
+  _globals['_FRAUDDETECTIONSERVICE']._serialized_start=268
+  _globals['_FRAUDDETECTIONSERVICE']._serialized_end=369
 # @@protoc_insertion_point(module_scope)

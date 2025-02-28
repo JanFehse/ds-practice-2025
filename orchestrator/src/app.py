@@ -11,6 +11,19 @@ fraud_detection_grpc_path = os.path.abspath(
 sys.path.insert(0, fraud_detection_grpc_path)
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
+suggestions_grpc_path = os.path.abspath(
+    os.path.join(FILE, "../../../utils/pb/suggestions")
+)
+sys.path.insert(0, suggestions_grpc_path)
+import suggestions_pb2 as suggestions
+import suggestions_pb2_grpc as suggestions_grpc
+transaction_verification_grpc_path = os.path.abspath(
+    os.path.join(FILE, "../../../utils/pb/transaction_verification")
+)
+sys.path.insert(0, transaction_verification_grpc_path)
+import transaction_verification_pb2 as transaction_verification
+import transaction_verification_pb2_grpc as transaction_verification_grpc
+
 
 import grpc
 
@@ -22,11 +35,41 @@ def detectFraud(Credit_Card_Number):
         print("wir sind da")
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
-        Billing_Adress = fraud_detection.BillingAdress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
-        request = fraud_detection.DetectFraudRequest(BillingAdress=Billing_Adress, CreditCardNumber=Credit_Card_Number)
+        Billing_Address = fraud_detection.BillingAddress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
+        request = fraud_detection.DetectFraudRequest(BillingAddress=Billing_Address, CreditCardNumber=Credit_Card_Number)
 
         response = stub.DetectFraud(request)
     return response.isLegit
+
+def getSuggestions():
+    # Establish a connection with the fraud-detection gRPC service.
+    with grpc.insecure_channel("suggestions:50053") as channel:
+        # Create a stub object.
+        print("wir sind da")
+        stub = suggestions_grpc.SuggestionsServiceStub(channel)
+        # Call the service through the stub object.
+        books = [
+            suggestions.Book(bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"),
+            suggestions.Book(bookId=102, title="1984", author="George Orwell"),
+            suggestions.Book(bookId=103, title="To Kill a Mockingbird", author="Harper Lee")
+        ]
+
+        request = suggestions.SuggestionsRequest(booksInCart=books)
+        response = stub.GetSuggestions(request)
+    return response.booksSuggested
+
+def verifyTransaction():
+    # Establish a connection with the fraud-detection gRPC service.
+    with grpc.insecure_channel("transaction_verification:50052") as channel:
+        # Create a stub object.
+        print("wir sind da")
+        stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
+        # Call the service through the stub object.
+        Billing_Address = transaction_verification.BillingAddress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
+        request = transaction_verification.TransactionRequest(name = "abc", CreditCardNumber = "123", expirationDate = "abc", cvv = "aaa", BillingAddress=Billing_Address)
+
+        response = stub.VerifyTransaction(request)
+    return response.transactionVerified
 
 
 # Import Flask.
@@ -67,7 +110,14 @@ def checkout():
     print("Request Data:", request_data.get("items"))
     isLegit = detectFraud("123456")
     print ("IsLegit: ", isLegit)
+
+    print(getSuggestions())
+
+    print("veryfied: ", verifyTransaction())
+
+    isLegit = detectFraud("123456")
     # Rest of task logic
+
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
     # Join the threads
