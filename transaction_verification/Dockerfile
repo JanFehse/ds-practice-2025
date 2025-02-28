@@ -12,4 +12,4 @@ COPY ./fraud_detection/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set the command to run the application
-CMD python utils/other/hotreload.py "fraud_detection/src/app.py"
+CMD python utils/other/hotreload.py "transaction_verification/src/app.py"
