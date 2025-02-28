@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import suggestions_pb2 as suggestions__pb2
+from suggestions import suggestions_pb2 as suggestions_dot_suggestions__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in suggestions_pb2_grpc.py depends on'
+        + f' but the generated code in suggestions/suggestions_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,8 +36,8 @@ class SuggestionsServiceStub(object):
         """
         self.GetSuggestions = channel.unary_unary(
                 '/bookstore.SuggestionsService/GetSuggestions',
-                request_serializer=suggestions__pb2.SuggestionsRequest.SerializeToString,
-                response_deserializer=suggestions__pb2.SuggestionsResponse.FromString,
+                request_serializer=suggestions_dot_suggestions__pb2.SuggestionsRequest.SerializeToString,
+                response_deserializer=suggestions_dot_suggestions__pb2.SuggestionsResponse.FromString,
                 _registered_method=True)
 
 
@@ -55,8 +55,8 @@ def add_SuggestionsServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetSuggestions': grpc.unary_unary_rpc_method_handler(
                     servicer.GetSuggestions,
-                    request_deserializer=suggestions__pb2.SuggestionsRequest.FromString,
-                    response_serializer=suggestions__pb2.SuggestionsResponse.SerializeToString,
+                    request_deserializer=suggestions_dot_suggestions__pb2.SuggestionsRequest.FromString,
+                    response_serializer=suggestions_dot_suggestions__pb2.SuggestionsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -84,8 +84,8 @@ class SuggestionsService(object):
             request,
             target,
             '/bookstore.SuggestionsService/GetSuggestions',
-            suggestions__pb2.SuggestionsRequest.SerializeToString,
-            suggestions__pb2.SuggestionsResponse.FromString,
+            suggestions_dot_suggestions__pb2.SuggestionsRequest.SerializeToString,
+            suggestions_dot_suggestions__pb2.SuggestionsResponse.FromString,
             options,
             channel_credentials,
             insecure,

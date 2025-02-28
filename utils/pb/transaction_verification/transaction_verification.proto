@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package hello;
+package bookstore;
+
+import "shared/order.proto";
 
 service TransactionVerificationService {
     rpc VerifyTransaction (TransactionRequest) returns (TransactionResponse);
@@ -8,20 +10,10 @@ service TransactionVerificationService {
 
 message TransactionRequest {
     string name = 1;
-    string CreditCardNumber = 2;
-    string expirationDate = 3;
-    string cvv = 4;
-    BillingAddress BillingAddress = 5;
+    CreditCard CreditCard = 2;
+    BillingAddress BillingAddress = 3;
 }
 
 message TransactionResponse {
     bool transactionVerified = 1;
-}
-
-message BillingAddress {
-    string street = 1;
-    string city = 2;
-    string state = 3;
-    string zip = 4;
-    string country = 5;
 }

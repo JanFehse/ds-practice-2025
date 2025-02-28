@@ -2,23 +2,17 @@ syntax = "proto3";
 
 package bookstore;
 
+import "shared/order.proto";
+
 service FraudDetectionService {
     rpc DetectFraud (DetectFraudRequest) returns (DetectFraudResponse);
 }
 
 message DetectFraudRequest {
-    string CreditCardNumber = 1;
+    CreditCard CreditCard = 1;
     BillingAddress BillingAddress = 2;
 }
 
 message DetectFraudResponse {
     bool isLegit = 1;
-}
-
-message BillingAddress {
-    string street = 1;
-    string city = 2;
-    string state = 3;
-    string zip = 4;
-    string country = 5;
 }

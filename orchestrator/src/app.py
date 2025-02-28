@@ -6,44 +6,34 @@ import os
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
 FILE = __file__ if "__file__" in globals() else os.getenv("PYTHONFILE", "")
-fraud_detection_grpc_path = os.path.abspath(
-    os.path.join(FILE, "../../../utils/pb/fraud_detection")
+grpc_path = os.path.abspath(
+    os.path.join(FILE, "../../../utils/pb")
 )
-sys.path.insert(0, fraud_detection_grpc_path)
-import fraud_detection_pb2 as fraud_detection
-import fraud_detection_pb2_grpc as fraud_detection_grpc
-suggestions_grpc_path = os.path.abspath(
-    os.path.join(FILE, "../../../utils/pb/suggestions")
-)
-sys.path.insert(0, suggestions_grpc_path)
-import suggestions_pb2 as suggestions
-import suggestions_pb2_grpc as suggestions_grpc
-transaction_verification_grpc_path = os.path.abspath(
-    os.path.join(FILE, "../../../utils/pb/transaction_verification")
-)
-sys.path.insert(0, transaction_verification_grpc_path)
-import transaction_verification_pb2 as transaction_verification
-import transaction_verification_pb2_grpc as transaction_verification_grpc
+sys.path.insert(0, grpc_path)
+import shared.order_pb2 as order
+import shared.order_pb2_grpc as order_grpc
+
+import fraud_detection.fraud_detection_pb2 as fraud_detection
+import fraud_detection.fraud_detection_pb2_grpc as fraud_detection_grpc
+
+import suggestions.suggestions_pb2 as suggestions
+import suggestions.suggestions_pb2_grpc as suggestions_grpc
+
+import transaction_verification.transaction_verification_pb2 as transaction_verification
+import transaction_verification.transaction_verification_pb2_grpc as transaction_verification_grpc
 
 
 import grpc
 
 
-def detectFraud(Credit_Card_Number, billingaddress):
+def detectFraud(creditCard, billingAddress):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("fraud_detection:50051") as channel:
         # Create a stub object.
         print("-- Call fraud detection --")
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
-        Billing_Address = fraud_detection.BillingAddress(
-            street = billingaddress.get("street"), 
-            city = billingaddress.get("city"),
-            state = billingaddress.get("state"), 
-            zip = billingaddress.get("zip"),
-            country=billingaddress.get("country"))
-        request = fraud_detection.DetectFraudRequest(BillingAddress=Billing_Address, CreditCardNumber=Credit_Card_Number)
-
+        request = fraud_detection.DetectFraudRequest(BillingAddress=billingAddress, CreditCard=creditCard)
         response = stub.DetectFraud(request)
     return response.isLegit
 
@@ -71,18 +61,9 @@ def verifyTransaction(creditCard, name, billingaddress):
         print("-- call transaction verification --")
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
-        Billing_Address = transaction_verification.BillingAddress(
-            street = billingaddress.get("street"), 
-            city = billingaddress.get("city"),
-            state = billingaddress.get("state"), 
-            zip = billingaddress.get("zip"),
-            country=billingaddress.get("country"))
         request = transaction_verification.TransactionRequest(name = name, 
-                            CreditCardNumber = creditCard.get("number"), 
-                            expirationDate = creditCard.get("expirationDate"), 
-                            cvv = creditCard.get("cvv"), 
-                            BillingAddress=Billing_Address)
-
+                            CreditCard = creditCard, 
+                            BillingAddress=billingaddress)
         response = stub.VerifyTransaction(request)
     return response.transactionVerified
 
@@ -111,11 +92,22 @@ def checkout():
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
+    Billing_Address = order.BillingAddress(
+            street = request_data.get("billingAddress").get("street"), 
+            city = request_data.get("billingAddress").get("city"),
+            state = request_data.get("billingAddress").get("state"), 
+            zip = request_data.get("billingAddress").get("zip"),
+            country= request_data.get("billingAddress").get("country"))
+    
+    Credit_Card = order.CreditCard( CreditCardNumber = request_data.get("creditCard").get("number"), 
+                            expirationDate = request_data.get("creditCard").get("expirationDate"), 
+                            cvv = request_data.get("creditCard").get("cvv"), 
+                        )
 
     with ThreadPoolExecutor(max_workers=3) as executor:
-        future_isLegit = executor.submit(detectFraud,request_data.get("creditCard").get("number"), request_data.get("billingAddress"))
+        future_isLegit = executor.submit(detectFraud, Credit_Card, Billing_Address)
         future_suggestions = executor.submit(getSuggestions,request_data.get("items"))
-        future_verified = executor.submit(verifyTransaction, request_data.get("creditCard"), request_data.get("name"), request_data.get("billingAddress"))
+        future_verified = executor.submit(verifyTransaction, Credit_Card, request_data.get("name"), Billing_Address)
 
         isLegit = future_isLegit.result()
         suggestions = future_suggestions.result()

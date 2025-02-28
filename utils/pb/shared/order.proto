@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bookstore;
+
+message BillingAddress {
+    string street = 1;
+    string city = 2;
+    string state = 3;
+    string zip = 4;
+    string country = 5;
+}
+
+message CreditCard {
+    string name = 1;
+    string CreditCardNumber = 2;
+    string expirationDate = 3;
+    string cvv = 4;
+}
