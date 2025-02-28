@@ -15,13 +15,19 @@ import fraud_detection_pb2_grpc as fraud_detection_grpc
 import grpc
 
 
-def greet(name="you"):
+def detectFraud(CreditCardNumber):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("fraud_detection:50051") as channel:
         # Create a stub object.
-        stub = fraud_detection_grpc.HelloServiceStub(channel)
+        stub = fraud_detection_grpc.FraudDetectionStub(channel)
         # Call the service through the stub object.
-        response = stub.SayHello(fraud_detection.HelloRequest(name=name))
+        request = fraud_detection.DetectFraudRequest()
+
+        request.CreditCardNumber = CreditCardNumber
+        BillingAdress = fraud_detection.BillingAdress(street = "Raatuse", city = "Tartu", state = "Tartu", zip = "123", country="Estonia")
+        request.BillingAdress = BillingAdress
+
+        response = stub.DetectFraud(request)
     return response.greeting
 
 
@@ -60,7 +66,8 @@ def checkout():
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
-
+    isLegit = detectFraud("123456")
+    print ("IsLegit: ", isLegit)
     # Rest of task logic
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
