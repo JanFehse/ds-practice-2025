@@ -26,24 +26,24 @@ class TransactionVerificationService(
         # Create a HelloResponse object
         response = transaction_verification.TransactionResponse()
         if (
-            len(request.creditCard.number) == 16
-            and request.creditCard.number.isdigit()
-            and len(request.creditCard.cvv) == 3
-            and request.creditCard.cvv.isdigit()
-            and len(request.creditCard.expiryDate) == 5
-            and request.creditCard.expiryDate[2] == "/"
-            and request.creditCard.expiryDate[:2].isdigit()
-            and request.creditCard.expiryDate[3:].isdigit()
-            and request.creditCard.expiryDate[:2] <= "12"
-            and request.creditCard.expiryDate[1] > "0"
-            and request.creditCard.expiryDate[3:] > "25"
+            len(request.CreditCard.number) == 16
+            and request.CreditCard.number.isdigit()
+            and len(request.CreditCard.cvv) == 3
+            and request.CreditCard.cvv.isdigit()
+            and len(request.CreditCard.expiryDate) == 5
+            and request.CreditCard.expirationDate[2] == "/"
+            and request.CreditCard.expirationDate[:2].isdigit()
+            and request.CreditCard.expirationDate[3:].isdigit()
+            and request.CreditCard.expirationDate[:2] <= "12"
+            and request.CreditCard.expirationDate[1] > "0"
+            and request.CreditCard.expirationDate[3:] > "25"
         ):
             response.transactionVerified = True
-            print(f"Verifizierte Transaktion mit Karte: {request.creditCard.number}")
+            print(f"Verifizierte Transaktion mit Karte: {request.CreditCard.number}")
         else:
             response.transactionVerified = False
             print(
-                f"Transaktion mit Karte: {request.creditCard.number} konnte nicht verifiziert werden"
+                f"Transaktion mit Karte: {request.CreditCard.number} konnte nicht verifiziert werden"
             )
         # response.transactionVerified = True
         # Print the greeting message
