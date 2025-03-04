@@ -30,7 +30,7 @@ class TransactionVerificationService(
             and request.CreditCard.CreditCardNumber.isdigit()
             and len(request.CreditCard.cvv) == 3
             and request.CreditCard.cvv.isdigit()
-            and len(request.CreditCard.expiryDate) == 5
+            and len(request.CreditCard.expirationDate) == 5
             and request.CreditCard.expirationDate[2] == "/"
             and request.CreditCard.expirationDate[:2].isdigit()
             and request.CreditCard.expirationDate[3:].isdigit()
