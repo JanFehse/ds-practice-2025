@@ -26,8 +26,8 @@ class TransactionVerificationService(
         # Create a HelloResponse object
         response = transaction_verification.TransactionResponse()
         if (
-            len(request.CreditCard.number) == 16
-            and request.CreditCard.number.isdigit()
+            len(request.CreditCard.CreditCardNumber) == 16
+            and request.CreditCard.CreditCardNumber.isdigit()
             and len(request.CreditCard.cvv) == 3
             and request.CreditCard.cvv.isdigit()
             and len(request.CreditCard.expiryDate) == 5
@@ -39,11 +39,13 @@ class TransactionVerificationService(
             and request.CreditCard.expirationDate[3:] > "25"
         ):
             response.transactionVerified = True
-            print(f"Verifizierte Transaktion mit Karte: {request.CreditCard.number}")
+            print(
+                f"Verifizierte Transaktion mit Karte: {request.CreditCard.CreditCardNumber}"
+            )
         else:
             response.transactionVerified = False
             print(
-                f"Transaktion mit Karte: {request.CreditCard.number} konnte nicht verifiziert werden"
+                f"Transaktion mit Karte: {request.CreditCard.CreditCardNumber} konnte nicht verifiziert werden"
             )
         # response.transactionVerified = True
         # Print the greeting message
