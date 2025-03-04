@@ -22,6 +22,8 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
     # Create an RPC function to say hello
     def GetSuggestions(self, request, context):
         # Create a SuggestionsResponse object
+        print("SuggestionService called")
+        
         response = suggestions.SuggestionsResponse()
         for book in request.booksInCart:
             print(f"Book in Cart: {book.title} by {book.author}")
@@ -37,7 +39,7 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
             suggestions.Book(bookId=108, title="The Hobbit", author="J.R.R. Tolkien")
         ]
 
-        suggested_books = random.sample(self.all_books, 3)
+        suggested_books = random.sample(all_books, 3)
         response = suggestions.SuggestionsResponse(booksSuggested=suggested_books)
 
         # Print the suggested books
