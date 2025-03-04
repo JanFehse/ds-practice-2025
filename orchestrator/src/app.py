@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import random
 import sys
 import os
 
@@ -129,7 +130,7 @@ def checkout():
 
     if not isLegit or not verified:
         return {
-            "orderId": "12345",
+            "orderId": "123456",
             "status": "Order Rejected",
             "suggestedBooks": []
         }
@@ -139,8 +140,9 @@ def checkout():
         suggested_books.append({"bookId": book.bookId, "title": book.title, "author": book.author})
 
     #ids noch machen
+    random_orderId = str(random.randint(100000, 999999))
     order_status_response = {
-        "orderId": "12345",
+        "orderId": random_orderId,
         "status": "Order Approved",
         "suggestedBooks": suggested_books,
     }
