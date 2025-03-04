@@ -24,8 +24,8 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         print("-- suggestion service called --")
 
         response = suggestions.SuggestionsResponse()
-        for book in request.booksInCart:
-            print(f"Book in Cart: {book.title} by {book.author}")
+        # for book in request.booksInCart:
+        #    print(f"Book in Cart: {book.title} by {book.author}")
         # Set the booksSuggested field of the response object
         all_books = [
             suggestions.Book(
