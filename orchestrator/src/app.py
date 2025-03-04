@@ -120,10 +120,6 @@ def checkout():
         suggestions = future_suggestions.result()
         verified = future_verified.result()
 
-    print("verified: ", verified)
-    print("IsLegit: ", isLegit)
-    print("suggestions:", suggestions)
-
     # Rest of task logic
 
     # Spawn new thread for each microservice
