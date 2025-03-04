@@ -1,5 +1,6 @@
 import sys
 import os
+import random
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -23,13 +24,16 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     # Create an RPC function to detect fraud
     def DetectFraud(self, request, context):
         # Create a DetectFraudResponse object
+        print("-- Detect Fraud called --")
         response = fraud_detection.DetectFraudResponse()
         # Set the greeting field of the response object
-        print(request)
-
-
-        response.isLegit = True
-        print('isLegit = ', response.isLegit)
+        r = random.random()
+        if r < 0.05:
+            response.isLegit = False
+            print("-- FRAUD DETECTED --")
+        else:
+            response.isLegit = True
+            print("-- No Fraud Detected --")
         # Return the response object
         return response
 
