@@ -23,7 +23,8 @@ class TransactionVerificationService(
 ):
     # Create an RPC function to verify transaction
     def VerifyTransaction(self, request, context):
-        # Create a HelloResponse object
+        print("-- transaction verification called --")
+        # Create a transactionResponse object
         response = transaction_verification.TransactionResponse()
         if (
             len(request.CreditCard.CreditCardNumber) == 16
@@ -45,7 +46,7 @@ class TransactionVerificationService(
         else:
             response.transactionVerified = False
             print(
-                f"denied transaction with card: {request.CreditCard.CreditCardNumber}"
+                f"Denied transaction with card: {request.CreditCard.CreditCardNumber}"
             )
         # response.transactionVerified = True
         # Print the greeting message
@@ -66,7 +67,7 @@ def serve():
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
-    print("Server started. Listening on port 50052.")
+    print("Transaction verification server started. Listening on port 50052.")
     # Keep thread alive
     server.wait_for_termination()
 
