@@ -40,12 +40,12 @@ class TransactionVerificationService(
         ):
             response.transactionVerified = True
             print(
-                f"Verifizierte Transaktion mit Karte: {request.CreditCard.CreditCardNumber}"
+                f"Verified transaction with card: {request.CreditCard.CreditCardNumber}"
             )
         else:
             response.transactionVerified = False
             print(
-                f"Transaktion mit Karte: {request.CreditCard.CreditCardNumber} konnte nicht verifiziert werden"
+                f"denied transaction with card: {request.CreditCard.CreditCardNumber}"
             )
         # response.transactionVerified = True
         # Print the greeting message
