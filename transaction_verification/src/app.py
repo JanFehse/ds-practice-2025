@@ -36,7 +36,7 @@ class TransactionVerificationService(
             and request.CreditCard.expirationDate[3:].isdigit()
             and request.CreditCard.expirationDate[:2] <= "12"
             and request.CreditCard.expirationDate[1] > "0"
-            and request.CreditCard.expirationDate[3:] > "25"
+            and request.CreditCard.expirationDate[3:] >= "25"
         ):
             response.transactionVerified = True
             print(
