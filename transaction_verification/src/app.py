@@ -17,7 +17,7 @@ from concurrent import futures
 
 
 # Create a class to define the server functions, derived from
-# transaction_verification_pb2_grpc.HelloServiceServicer
+# transaction_verification_pb2_grpc.TransactionVerificationServiceServicer
 class TransactionVerificationService(
     transaction_verification_grpc.TransactionVerificationServiceServicer
 ):
@@ -26,6 +26,7 @@ class TransactionVerificationService(
         print("-- transaction verification called --")
         # Create a transactionResponse object
         response = transaction_verification.TransactionResponse()
+        # check for valid credit card data
         if (
             len(request.CreditCard.CreditCardNumber) == 16
             and request.CreditCard.CreditCardNumber.isdigit()
@@ -48,9 +49,6 @@ class TransactionVerificationService(
             print(
                 f"Denied transaction with card: {request.CreditCard.CreditCardNumber}"
             )
-        # response.transactionVerified = True
-        # Print the greeting message
-        # print(response.transactionVerified)
         # Return the response object
         return response
 
