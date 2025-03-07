@@ -40,7 +40,7 @@ def detectFraud(creditCard, billingAddress):
 
 
 def getSuggestions(books_json):
-    # Establish a connection with the fraud-detection gRPC service.
+    # Establish a connection with the suggestions gRPC service.
     with grpc.insecure_channel("suggestions:50053") as channel:
         # Create a stub object.
         print("-- call suggestions --")
@@ -58,7 +58,7 @@ def getSuggestions(books_json):
 
 
 def verifyTransaction(creditCard, name, billingaddress):
-    # Establish a connection with the fraud-detection gRPC service.
+    # Establish a connection with the verify-transaction gRPC service.
     with grpc.insecure_channel("transaction_verification:50052") as channel:
         # Create a stub object.
         print("-- call transaction verification --")
@@ -108,7 +108,8 @@ def checkout():
         expirationDate=request_data.get("creditCard").get("expirationDate"),
         cvv=request_data.get("creditCard").get("cvv"),
     )
-
+    # Spawn new thread for each microservice
+    # In each thread, call the microservie and get the response
     with ThreadPoolExecutor(max_workers=3) as executor:
         future_isLegit = executor.submit(detectFraud, Credit_Card, Billing_Address)
         future_suggestions = executor.submit(getSuggestions, request_data.get("items"))
@@ -120,15 +121,8 @@ def checkout():
         suggestions = future_suggestions.result()
         verified = future_verified.result()
 
-    # Rest of task logic
-
-    # Spawn new thread for each microservice
-    # In each thread, call the microservie and get the response
     # Join the threads
     # Make a decision if the order is approved or not
-    # Return the response
-
-    # Dummy response following the provided YAML specification for the bookstore
 
     if not isLegit or not verified:
         return {"orderId": "123456", "status": "Order Rejected", "suggestedBooks": []}
@@ -139,13 +133,13 @@ def checkout():
             {"bookId": book.bookId, "title": book.title, "author": book.author}
         )
 
-    # ids noch machen
     random_orderId = str(random.randint(100000, 999999))
     order_status_response = {
         "orderId": random_orderId,
         "status": "Order Approved",
         "suggestedBooks": suggested_books,
     }
+    # Return the response
 
     return order_status_response
 

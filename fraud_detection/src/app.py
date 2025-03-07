@@ -26,6 +26,7 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         print("-- detect fraud called --")
         response = fraud_detection.DetectFraudResponse()
         # Set the greeting field of the response object
+        # Dummy logic for random fraud
         r = random.random()
         if r < 0.05:
             response.isLegit = False
