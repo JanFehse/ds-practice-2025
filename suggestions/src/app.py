@@ -28,21 +28,13 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         #    print(f"Book in Cart: {book.title} by {book.author}")
         # Set the booksSuggested field of the response object
         all_books = [
-            suggestions.Book(
-                bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"
-            ),
+            suggestions.Book(bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"),
             suggestions.Book(bookId=102, title="1984", author="George Orwell"),
-            suggestions.Book(
-                bookId=103, title="To Kill a Mockingbird", author="Harper Lee"
-            ),
-            suggestions.Book(
-                bookId=104, title="Pride and Prejudice", author="Jane Austen"
-            ),
+            suggestions.Book(bookId=103, title="To Kill a Mockingbird", author="Harper Lee"),
+            suggestions.Book(bookId=104, title="Pride and Prejudice", author="Jane Austen"),
             suggestions.Book(bookId=105, title="Moby-Dick", author="Herman Melville"),
             suggestions.Book(bookId=106, title="War and Peace", author="Leo Tolstoy"),
-            suggestions.Book(
-                bookId=107, title="The Catcher in the Rye", author="J.D. Salinger"
-            ),
+            suggestions.Book(bookId=107, title="The Catcher in the Rye", author="J.D. Salinger"),
             suggestions.Book(bookId=108, title="The Hobbit", author="J.R.R. Tolkien"),
         ]
 
