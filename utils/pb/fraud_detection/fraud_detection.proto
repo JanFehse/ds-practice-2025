@@ -5,12 +5,14 @@ package bookstore;
 import "shared/order.proto";
 
 service FraudDetectionService {
-    rpc DetectFraud (DetectFraudRequest) returns (DetectFraudResponse);
+    rpc InitDetectFraud (InitDetectFraudRequest) returns (ErrorResponse);
+    rpc DetectFraud (ExecInfo) returns (ErrorResponse);
 }
 
-message DetectFraudRequest {
-    CreditCard CreditCard = 1;
-    BillingAddress BillingAddress = 2;
+message InitDetectFraudRequest {
+    ExecInfo info = 1;
+    CreditCard CreditCard = 2;
+    BillingAddress BillingAddress = 3;
 }
 
 message DetectFraudResponse {
