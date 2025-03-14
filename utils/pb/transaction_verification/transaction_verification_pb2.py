@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from shared import order_pb2 as shared_dot_order__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n7transaction_verification/transaction_verification.proto\x12\tbookstore\x1a\x12shared/order.proto\"\x80\x01\n\x12TransactionRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12)\n\nCreditCard\x18\x02 \x01(\x0b\x32\x15.bookstore.CreditCard\x12\x31\n\x0e\x42illingAddress\x18\x03 \x01(\x0b\x32\x19.bookstore.BillingAddress\"2\n\x13TransactionResponse\x12\x1b\n\x13transactionVerified\x18\x01 \x01(\x08\x32t\n\x1eTransactionVerificationService\x12R\n\x11VerifyTransaction\x12\x1d.bookstore.TransactionRequest\x1a\x1e.bookstore.TransactionResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n7transaction_verification/transaction_verification.proto\x12\tbookstore\x1a\x12shared/order.proto\"\xa3\x01\n\x12TransactionRequest\x12!\n\x04info\x18\x01 \x01(\x0b\x32\x13.bookstore.ExecInfo\x12\x0c\n\x04name\x18\x02 \x01(\t\x12)\n\nCreditCard\x18\x03 \x01(\x0b\x32\x15.bookstore.CreditCard\x12\x31\n\x0e\x42illingAddress\x18\x04 \x01(\x0b\x32\x19.bookstore.BillingAddress\"2\n\x13TransactionResponse\x12\x1b\n\x13transactionVerified\x18\x01 \x01(\x08\x32\xb6\x01\n\x1eTransactionVerificationService\x12P\n\x15InitVerifyTransaction\x12\x1d.bookstore.TransactionRequest\x1a\x18.bookstore.ErrorResponse\x12\x42\n\x11VerifyTransaction\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,9 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'transaction_verification.tr
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_TRANSACTIONREQUEST']._serialized_start=91
-  _globals['_TRANSACTIONREQUEST']._serialized_end=219
-  _globals['_TRANSACTIONRESPONSE']._serialized_start=221
-  _globals['_TRANSACTIONRESPONSE']._serialized_end=271
-  _globals['_TRANSACTIONVERIFICATIONSERVICE']._serialized_start=273
-  _globals['_TRANSACTIONVERIFICATIONSERVICE']._serialized_end=389
+  _globals['_TRANSACTIONREQUEST']._serialized_end=254
+  _globals['_TRANSACTIONRESPONSE']._serialized_start=256
+  _globals['_TRANSACTIONRESPONSE']._serialized_end=306
+  _globals['_TRANSACTIONVERIFICATIONSERVICE']._serialized_start=309
+  _globals['_TRANSACTIONVERIFICATIONSERVICE']._serialized_end=491
 # @@protoc_insertion_point(module_scope)

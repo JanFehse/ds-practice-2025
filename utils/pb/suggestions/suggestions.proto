@@ -2,12 +2,16 @@ syntax = "proto3";
 
 package bookstore;
 
+import "shared/order.proto";
+
 service SuggestionsService {
-    rpc GetSuggestions (SuggestionsRequest) returns (SuggestionsResponse);
+    rpc InitGetSuggestions (SuggestionsRequest) returns (ErrorResponse);
+    rpc GetSuggestions (ExecInfo) returns (ErrorResponse);
 }
 
 message SuggestionsRequest {
-    repeated Book booksInCart = 1;
+    ExecInfo info = 1;
+    repeated Book booksInCart = 2;
 }
 
 message SuggestionsResponse {

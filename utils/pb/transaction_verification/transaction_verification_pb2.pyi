@@ -6,14 +6,16 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class TransactionRequest(_message.Message):
-    __slots__ = ("name", "CreditCard", "BillingAddress")
+    __slots__ = ("info", "name", "CreditCard", "BillingAddress")
+    INFO_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     CREDITCARD_FIELD_NUMBER: _ClassVar[int]
     BILLINGADDRESS_FIELD_NUMBER: _ClassVar[int]
+    info: _order_pb2.ExecInfo
     name: str
     CreditCard: _order_pb2.CreditCard
     BillingAddress: _order_pb2.BillingAddress
-    def __init__(self, name: _Optional[str] = ..., CreditCard: _Optional[_Union[_order_pb2.CreditCard, _Mapping]] = ..., BillingAddress: _Optional[_Union[_order_pb2.BillingAddress, _Mapping]] = ...) -> None: ...
+    def __init__(self, info: _Optional[_Union[_order_pb2.ExecInfo, _Mapping]] = ..., name: _Optional[str] = ..., CreditCard: _Optional[_Union[_order_pb2.CreditCard, _Mapping]] = ..., BillingAddress: _Optional[_Union[_order_pb2.BillingAddress, _Mapping]] = ...) -> None: ...
 
 class TransactionResponse(_message.Message):
     __slots__ = ("transactionVerified",)

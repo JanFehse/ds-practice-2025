@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from shared import order_pb2 as shared_dot_order__pb2
 from transaction_verification import transaction_verification_pb2 as transaction__verification_dot_transaction__verification__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
@@ -34,15 +35,26 @@ class TransactionVerificationServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.InitVerifyTransaction = channel.unary_unary(
+                '/bookstore.TransactionVerificationService/InitVerifyTransaction',
+                request_serializer=transaction__verification_dot_transaction__verification__pb2.TransactionRequest.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
+                _registered_method=True)
         self.VerifyTransaction = channel.unary_unary(
                 '/bookstore.TransactionVerificationService/VerifyTransaction',
-                request_serializer=transaction__verification_dot_transaction__verification__pb2.TransactionRequest.SerializeToString,
-                response_deserializer=transaction__verification_dot_transaction__verification__pb2.TransactionResponse.FromString,
+                request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
 
 
 class TransactionVerificationServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def InitVerifyTransaction(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def VerifyTransaction(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -53,10 +65,15 @@ class TransactionVerificationServiceServicer(object):
 
 def add_TransactionVerificationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'InitVerifyTransaction': grpc.unary_unary_rpc_method_handler(
+                    servicer.InitVerifyTransaction,
+                    request_deserializer=transaction__verification_dot_transaction__verification__pb2.TransactionRequest.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
             'VerifyTransaction': grpc.unary_unary_rpc_method_handler(
                     servicer.VerifyTransaction,
-                    request_deserializer=transaction__verification_dot_transaction__verification__pb2.TransactionRequest.FromString,
-                    response_serializer=transaction__verification_dot_transaction__verification__pb2.TransactionResponse.SerializeToString,
+                    request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -68,6 +85,33 @@ def add_TransactionVerificationServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class TransactionVerificationService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def InitVerifyTransaction(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.TransactionVerificationService/InitVerifyTransaction',
+            transaction__verification_dot_transaction__verification__pb2.TransactionRequest.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def VerifyTransaction(request,
@@ -84,8 +128,8 @@ class TransactionVerificationService(object):
             request,
             target,
             '/bookstore.TransactionVerificationService/VerifyTransaction',
-            transaction__verification_dot_transaction__verification__pb2.TransactionRequest.SerializeToString,
-            transaction__verification_dot_transaction__verification__pb2.TransactionResponse.FromString,
+            shared_dot_order__pb2.ExecInfo.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
             options,
             channel_credentials,
             insecure,

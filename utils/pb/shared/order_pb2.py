@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12shared/order.proto\x12\tbookstore\"[\n\x0e\x42illingAddress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t\"Y\n\nCreditCard\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x18\n\x10\x43reditCardNumber\x18\x02 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x03 \x01(\t\x12\x0b\n\x03\x63vv\x18\x04 \x01(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12shared/order.proto\x12\tbookstore\"[\n\x0e\x42illingAddress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t\"Y\n\nCreditCard\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x18\n\x10\x43reditCardNumber\x18\x02 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x03 \x01(\t\x12\x0b\n\x03\x63vv\x18\x04 \x01(\t\"+\n\x08\x45xecInfo\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x13\n\x0bvectorClock\x18\x02 \x03(\x03\"\x1e\n\rErrorResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\x08\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,4 +35,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_BILLINGADDRESS']._serialized_end=124
   _globals['_CREDITCARD']._serialized_start=126
   _globals['_CREDITCARD']._serialized_end=215
+  _globals['_EXECINFO']._serialized_start=217
+  _globals['_EXECINFO']._serialized_end=260
+  _globals['_ERRORRESPONSE']._serialized_start=262
+  _globals['_ERRORRESPONSE']._serialized_end=292
 # @@protoc_insertion_point(module_scope)
