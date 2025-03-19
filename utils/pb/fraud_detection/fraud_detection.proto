@@ -6,7 +6,8 @@ import "shared/order.proto";
 
 service FraudDetectionService {
     rpc InitDetectFraud (InitDetectFraudRequest) returns (ErrorResponse);
-    rpc DetectFraud (ExecInfo) returns (ErrorResponse);
+    rpc DetectFraudBillingadress (ExecInfo) returns (ErrorResponse);
+    rpc DetectFraudCreditCard (ExecInfo) returns (ErrorResponse);
 }
 
 message InitDetectFraudRequest {

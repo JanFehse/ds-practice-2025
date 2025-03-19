@@ -12,6 +12,8 @@ import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
 import fraud_detection.fraud_detection_pb2 as fraud_detection
 import fraud_detection.fraud_detection_pb2_grpc as fraud_detection_grpc
+import suggestions.suggestions_pb2 as suggestions
+import suggestions.suggestions_pb2_grpc as suggestions_grpc
 
 import grpc
 from concurrent import futures
@@ -20,21 +22,60 @@ from concurrent import futures
 # Create a class to define the server functions, derived from
 # fraud_detection_pb2_grpc.FraudDetectionServiceServicer
 class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
-    # Create an RPC function to detect fraud
-    def DetectFraud(self, request, context):
-        # Create a DetectFraudResponse object
-        print("-- detect fraud called --")
-        response = fraud_detection.DetectFraudResponse()
-        # Set the greeting field of the response object
-        # Dummy logic for random fraud
+    orders = {}
+    total_svc = 3
+    svc_index = 1
+    #Initialize into orders
+    def InitDetectFraud(self, request, context):
+        self.orders[request.info.id] = {"vc": [0]*self.total_svc, "BillingAdress": request.BillingAdress, "Creditcard": request.CreditCard}
+        response = order.ErrorResponse()
+        response.error = False
+        return response
+    
+    def update_svc(self, local_vc, incoming_vc):
+        for i in range(self.total_svc):
+            local_vc[i] = max(local_vc[i], incoming_vc[i])
+    
+    def DetectFraudBillingadress(self, request, context):
+        entry = self.orders.get(request.id)
+        self.update_svc(entry["vc"], request.vectorClock)
+        response = order.ErrorResponse()
+        if entry["vc"] < [2,0,0]:
+            response.error = False
+            return response
+        print("-- detect Billingadress fraud called ID:", request.id ,"--")
         r = random.random()
-        if r < 0.05:
-            response.isLegit = False
-            print("-- FRAUD DETECTED --")
-        else:
-            response.isLegit = True
-            print("-- no Fraud Detected --")
-        # Return the response object
+        if r < 0.02:
+            print("-- FRAUD BILLINGADRESS DETECTED ID:", request.id ,"--")
+            # TODO call Orchestrator that the order should not be finished
+        response.error = False
+        print("-- no Fraud Detected ID:", request.id ,"--")
+        entry["vc"][self.svc_index] += 1
+        with grpc.insecure_channel("suggestions:50053") as channel:
+            stub = suggestions_grpc.SuggestionsServiceStub(channel)
+            request = order.ExecInfo(id=request.id, vectorClock=entry["vc"])
+            stub.GetSuggestions(request)
+        return response
+    
+    def DetectFraudCreditCard(self, request, context):
+        entry = self.orders.get(request.id)
+        self.update_svc(entry["vc"], request.vectorClock)
+        response = order.ErrorResponse()
+        if entry["vc"] < [2,0,0]:
+            response.error = False
+            return response
+        print("-- detect Creditcard fraud called ID:", request.id ,"--")
+        r = random.random()
+        if r < 0.02:
+            print("-- FRAUD CREDITCARD DETECTED ID:", request.id ,"--")
+            # TODO call Orchestrator that the order should not be finished
+        response.error = False
+        print("-- no Fraud Detected Creditcard ID:", request.id ,"--")
+        entry["vc"][self.svc_index] += 1
+        with grpc.insecure_channel("suggestions:50053") as channel:
+            stub = suggestions_grpc.SuggestionsServiceStub(channel)
+            request = order.ExecInfo(id=request.id, vectorClock=entry["vc"])
+            stub.GetSuggestions(request)
         return response
 
 

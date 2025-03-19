@@ -40,8 +40,13 @@ class FraudDetectionServiceStub(object):
                 request_serializer=fraud__detection_dot_fraud__detection__pb2.InitDetectFraudRequest.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
-        self.DetectFraud = channel.unary_unary(
-                '/bookstore.FraudDetectionService/DetectFraud',
+        self.DetectFraudBillingadress = channel.unary_unary(
+                '/bookstore.FraudDetectionService/DetectFraudBillingadress',
+                request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
+                _registered_method=True)
+        self.DetectFraudCreditCard = channel.unary_unary(
+                '/bookstore.FraudDetectionService/DetectFraudCreditCard',
                 request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
@@ -56,7 +61,13 @@ class FraudDetectionServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def DetectFraud(self, request, context):
+    def DetectFraudBillingadress(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DetectFraudCreditCard(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -70,8 +81,13 @@ def add_FraudDetectionServiceServicer_to_server(servicer, server):
                     request_deserializer=fraud__detection_dot_fraud__detection__pb2.InitDetectFraudRequest.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
-            'DetectFraud': grpc.unary_unary_rpc_method_handler(
-                    servicer.DetectFraud,
+            'DetectFraudBillingadress': grpc.unary_unary_rpc_method_handler(
+                    servicer.DetectFraudBillingadress,
+                    request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
+            'DetectFraudCreditCard': grpc.unary_unary_rpc_method_handler(
+                    servicer.DetectFraudCreditCard,
                     request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
@@ -114,7 +130,7 @@ class FraudDetectionService(object):
             _registered_method=True)
 
     @staticmethod
-    def DetectFraud(request,
+    def DetectFraudBillingadress(request,
             target,
             options=(),
             channel_credentials=None,
@@ -127,7 +143,34 @@ class FraudDetectionService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bookstore.FraudDetectionService/DetectFraud',
+            '/bookstore.FraudDetectionService/DetectFraudBillingadress',
+            shared_dot_order__pb2.ExecInfo.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DetectFraudCreditCard(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.FraudDetectionService/DetectFraudCreditCard',
             shared_dot_order__pb2.ExecInfo.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,

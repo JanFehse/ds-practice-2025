@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from shared import order_pb2 as shared_dot_order__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%fraud_detection/fraud_detection.proto\x12\tbookstore\x1a\x12shared/order.proto\"\x99\x01\n\x16InitDetectFraudRequest\x12!\n\x04info\x18\x01 \x01(\x0b\x32\x13.bookstore.ExecInfo\x12)\n\nCreditCard\x18\x02 \x01(\x0b\x32\x15.bookstore.CreditCard\x12\x31\n\x0e\x42illingAddress\x18\x03 \x01(\x0b\x32\x19.bookstore.BillingAddress\"&\n\x13\x44\x65tectFraudResponse\x12\x0f\n\x07isLegit\x18\x01 \x01(\x08\x32\xa5\x01\n\x15\x46raudDetectionService\x12N\n\x0fInitDetectFraud\x12!.bookstore.InitDetectFraudRequest\x1a\x18.bookstore.ErrorResponse\x12<\n\x0b\x44\x65tectFraud\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%fraud_detection/fraud_detection.proto\x12\tbookstore\x1a\x12shared/order.proto\"\x99\x01\n\x16InitDetectFraudRequest\x12!\n\x04info\x18\x01 \x01(\x0b\x32\x13.bookstore.ExecInfo\x12)\n\nCreditCard\x18\x02 \x01(\x0b\x32\x15.bookstore.CreditCard\x12\x31\n\x0e\x42illingAddress\x18\x03 \x01(\x0b\x32\x19.bookstore.BillingAddress\"&\n\x13\x44\x65tectFraudResponse\x12\x0f\n\x07isLegit\x18\x01 \x01(\x08\x32\xfa\x01\n\x15\x46raudDetectionService\x12N\n\x0fInitDetectFraud\x12!.bookstore.InitDetectFraudRequest\x1a\x18.bookstore.ErrorResponse\x12I\n\x18\x44\x65tectFraudBillingadress\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponse\x12\x46\n\x15\x44\x65tectFraudCreditCard\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,5 +37,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_DETECTFRAUDRESPONSE']._serialized_start=228
   _globals['_DETECTFRAUDRESPONSE']._serialized_end=266
   _globals['_FRAUDDETECTIONSERVICE']._serialized_start=269
-  _globals['_FRAUDDETECTIONSERVICE']._serialized_end=434
+  _globals['_FRAUDDETECTIONSERVICE']._serialized_end=519
 # @@protoc_insertion_point(module_scope)
