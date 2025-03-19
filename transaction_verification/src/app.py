@@ -27,14 +27,14 @@ class TransactionVerificationService(
     def InitVerifyTransaction(self, request, context):
         self.orders[request.info.id] = {"data": request}
         print("-- transaction verification called - transaction queued --")
-        response = transaction_verification.ErrorResponse()
+        response = order.ErrorResponse()
         response.error = False
         return response
     
     def VerifyTransaction(self, request, context):
         id = request.info.id
         print(f"-- transaction verification called for order {id} --")
-        response = transaction_verification.ErrorResponse()
+        response = order.ErrorResponse()
         
         verifiedCart = self.VerifyCart(id)
         
@@ -116,44 +116,6 @@ class TransactionVerificationService(
                 f"Denied credit card for order {id}"
             )
             return False
-        
-        
-
-# Create a class to define the server functions, derived from
-# transaction_verification_pb2_grpc.TransactionVerificationServiceServicer
-class TransactionVerificationService(
-    transaction_verification_grpc.TransactionVerificationServiceServicer
-):
-    # Create an RPC function to verify transaction
-    def VerifyTransaction(self, request, context):
-        print("-- transaction verification called --")
-        # Create a transactionResponse object
-        response = transaction_verification.TransactionResponse()
-        # check for valid credit card data
-        if (
-            len(request.CreditCard.CreditCardNumber) == 16
-            and request.CreditCard.CreditCardNumber.isdigit()
-            and len(request.CreditCard.cvv) == 3
-            and request.CreditCard.cvv.isdigit()
-            and len(request.CreditCard.expirationDate) == 5
-            and request.CreditCard.expirationDate[2] == "/"
-            and request.CreditCard.expirationDate[:2].isdigit()
-            and request.CreditCard.expirationDate[3:].isdigit()
-            and request.CreditCard.expirationDate[:2] <= "12"
-            and request.CreditCard.expirationDate[1] > "0"
-            and request.CreditCard.expirationDate[3:] >= "25"
-        ):
-            response.transactionVerified = True
-            print(
-                f"Verified transaction with card: {request.CreditCard.CreditCardNumber}"
-            )
-        else:
-            response.transactionVerified = False
-            print(
-                f"Denied transaction with card: {request.CreditCard.CreditCardNumber}"
-            )
-        # Return the response object
-        return response
 
 
 def serve():
