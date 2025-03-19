@@ -10,6 +10,8 @@ grpc_path = os.path.abspath(os.path.join(FILE, "../../../utils/pb"))
 sys.path.insert(0, grpc_path)
 import suggestions.suggestions_pb2 as suggestions
 import suggestions.suggestions_pb2_grpc as suggestions_grpc
+import shared.order_pb2 as order
+import shared.order_pb2_grpc as order_grpc
 
 import grpc
 from concurrent import futures
@@ -19,9 +21,32 @@ from concurrent import futures
 # fraud_detection_pb2_grpc.HelloServiceServicer
 class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
     # Create an RPC function to say hello
+    orders = {}
+    svc_idx = 2
+    def InitGetSuggestions(self, request, context):
+        self.orders[request.SuggestionsRequest.info.id] = {"vc": request.SuggestionsRequest.info.vc, "books": request.SuggestionsRequest.booksInCart}
+        response = order.ErrorResponse(error = False)
+        return response
+    
+    def merge(self, local_vc, incoming_vc):
+        for i in range (3):
+            new_vc = max(local_vc[i], incoming_vc[i])
+        return new_vc
+    
+    def merge_and_increment(self, local_vc, incoming_vc):
+        local_vc = self.merge(local_vc, incoming_vc)
+        local_vc[self.svc_idx] +=1
+        
     def GetSuggestions(self, request, context):
         # Create a SuggestionsResponse object
         print("-- suggestion service called --")
+        entry = self.orders.get(request.ExecInfo.id)
+    
+        if(self.merge(entry["vc"], request.ExecInfo.vc) < [2,2,0]):
+            print("-- suggestion service called - waiting for process--")
+            return True
+
+        self.merge_and_increment(entry["vc"], request.ExecInfo.vc)
 
         response = suggestions.SuggestionsResponse()
         # for book in request.booksInCart:

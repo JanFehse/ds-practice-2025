@@ -25,21 +25,22 @@ import transaction_verification.transaction_verification_pb2_grpc as transaction
 import grpc
 
 
-def detectFraud(creditCard, billingAddress):
+def initDetectFraud(id, creditCard, billingAddress):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel("fraud_detection:50051") as channel:
         # Create a stub object.
         print("-- call fraud detection --")
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
-        request = fraud_detection.DetectFraudRequest(
-            BillingAddress=billingAddress, CreditCard=creditCard
+        execInfo = suggestions.ExecInfo(id = id, vectorClock = [0,0,0])
+        request = fraud_detection.DetectFraud(
+            info= execInfo, BillingAddress=billingAddress, CreditCard=creditCard
         )
-        response = stub.DetectFraud(request)
-    return response.isLegit
+        response = stub.InitDetectFraud(request)
+    return response.error
 
 
-def getSuggestions(books_json):
+def initSuggestions(id, books_json):
     # Establish a connection with the suggestions gRPC service.
     with grpc.insecure_channel("suggestions:50053") as channel:
         # Create a stub object.
@@ -51,24 +52,27 @@ def getSuggestions(books_json):
             books.append(
                 suggestions.Book(bookId=123, title=book.get("name"), author="John Doe")
             )
+        
+        execInfo = suggestions.ExecInfo(id = id, vectorClock = [0,0,0])
+        request = suggestions.SuggestionsRequest(info=execInfo, booksInCart=books)
+        response = stub.InitGetSuggestions(request)
+    return response.error
 
-        request = suggestions.SuggestionsRequest(booksInCart=books)
-        response = stub.GetSuggestions(request)
-    return response.booksSuggested
 
-
-def verifyTransaction(creditCard, name, billingaddress):
+def initVerifyTransaction(id, creditCard, name, billingaddress):
     # Establish a connection with the verify-transaction gRPC service.
     with grpc.insecure_channel("transaction_verification:50052") as channel:
         # Create a stub object.
         print("-- call transaction verification --")
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
+        execInfo = suggestions.ExecInfo(id = id, vectorClock = [0,0,0])
         request = transaction_verification.TransactionRequest(
-            name=name, CreditCard=creditCard, BillingAddress=billingaddress
+            info = execInfo, name=name, CreditCard=creditCard, BillingAddress=billingaddress
         )
-        response = stub.VerifyTransaction(request)
-    return response.transactionVerified
+        response = stub.InitVerifyTransaction(request)
+    return response.error
+
 
 
 # Import Flask.
@@ -110,38 +114,37 @@ def checkout():
     )
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
+    random_orderId = str(random.randint(100000, 999999))
     with ThreadPoolExecutor(max_workers=3) as executor:
-        future_isLegit = executor.submit(detectFraud, Credit_Card, Billing_Address)
-        future_suggestions = executor.submit(getSuggestions, request_data.get("items"))
-        future_verified = executor.submit(
-            verifyTransaction, Credit_Card, request_data.get("name"), Billing_Address
-        )
+        future_initDetectFraud_error = executor.submit(initDetectFraud, random_orderId, Credit_Card, Billing_Address)
+        future_initSuggestions_error = executor.submit(initSuggestions, random_orderId, request_data.get("items"))
+        future_initVerifyTransaction_error = executor.submit(initVerifyTransaction, random_orderId, Credit_Card, request_data.get("name"), Billing_Address)
 
-        isLegit = future_isLegit.result()
-        suggestions = future_suggestions.result()
-        verified = future_verified.result()
+        initDetectFraud_error = future_initDetectFraud_error.result()
+        initSuggestions_error = future_initSuggestions_error.result()
+        initVerifyTransaction_error = future_initVerifyTransaction_error.result()
 
     # Join the threads
     # Make a decision if the order is approved or not
 
-    if not isLegit or not verified:
+    if initDetectFraud_error or initSuggestions_error or initVerifyTransaction_error: 
         return {"orderId": "123456", "status": "Order Rejected", "suggestedBooks": []}
 
-    suggested_books = []
-    for book in suggestions:
-        suggested_books.append(
-            {"bookId": book.bookId, "title": book.title, "author": book.author}
-        )
+    # suggested_books = []
+    # for book in suggestions:
+    #     suggested_books.append(
+    #         {"bookId": book.bookId, "title": book.title, "author": book.author}
+    #     )
 
-    random_orderId = str(random.randint(100000, 999999))
-    order_status_response = {
-        "orderId": random_orderId,
-        "status": "Order Approved",
-        "suggestedBooks": suggested_books,
-    }
+    
+    # order_status_response = {
+    #     "orderId": random_orderId,
+    #     "status": "Order Approved",
+    #     "suggestedBooks": suggested_books,
+    # }
     # Return the response
 
-    return order_status_response
+    return {"orderId": "0", "status": "Order Rejected", "suggestedBooks": []}
 
 
 if __name__ == "__main__":
