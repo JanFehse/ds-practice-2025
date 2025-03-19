@@ -66,6 +66,7 @@ class TransactionVerificationService(
     
         if hasattr(order_data, "booksInCart") and len(order_data.booksInCart) > 0:
             print(f"Verified cart with {len(order_data.booksInCart)} books")
+            order_data.info.vectorClock[0] += 1
             return True
         else:
             print("Denied cart with no books")
