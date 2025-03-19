@@ -33,7 +33,7 @@ def initDetectFraud(id, creditCard, billingAddress):
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
         execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
-        request = fraud_detection.DetectFraud(
+        request = fraud_detection.InitDetectFraudRequest(
             info= execInfo, BillingAddress=billingAddress, CreditCard=creditCard
         )
         response = stub.InitDetectFraud(request)
@@ -67,7 +67,7 @@ def initVerifyTransaction(id, creditCard, name, billingaddress):
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
         execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
-        request = transaction_verification.TransactionRequest(
+        request = transaction_verification.InitTransactionRequest(
             info = execInfo, name=name, CreditCard=creditCard, BillingAddress=billingaddress
         )
         response = stub.InitVerifyTransaction(request)
@@ -114,7 +114,7 @@ def checkout():
     )
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
-    random_orderId = str(random.randint(100000, 999999))
+    random_orderId = random.randint(100000, 999999)
     with ThreadPoolExecutor(max_workers=3) as executor:
         future_initDetectFraud_error = executor.submit(initDetectFraud, random_orderId, Credit_Card, Billing_Address)
         future_initSuggestions_error = executor.submit(initSuggestions, random_orderId, request_data.get("items"))
