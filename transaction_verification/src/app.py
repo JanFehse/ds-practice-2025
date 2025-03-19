@@ -91,7 +91,7 @@ class TransactionVerificationService(
             return False
     
     def VerifyCreditCardData(self, id):
-        print(f "-- transaction verification - verify credit card data for order {id} --")
+        print("-- transaction verification - verify credit card data for order {id} --")
         order_data = self.orders[id]["data"]
         if (
             len(order_data.CreditCard.CreditCardNumber) == 16

@@ -27,7 +27,8 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     svc_index = 1
     #Initialize into orders
     def InitDetectFraud(self, request, context):
-        self.orders[request.info.id] = {"vc": [0]*self.total_svc, "BillingAdress": request.BillingAdress, "Creditcard": request.CreditCard}
+        print("---detect Fraud initialized---")
+        self.orders[request.info.id] = {"vc": [0]*self.total_svc, "BillingAdress": request.BillingAddress, "Creditcard": request.CreditCard}
         response = order.ErrorResponse()
         response.error = False
         return response

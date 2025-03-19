@@ -24,7 +24,8 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
     orders = {}
     svc_idx = 2
     def InitGetSuggestions(self, request, context):
-        self.orders[request.SuggestionsRequest.info.id] = {"vc": request.SuggestionsRequest.info.vc, "books": request.SuggestionsRequest.booksInCart}
+        print("---suggestions initalized---")
+        self.orders[request.SuggestionsRequest.info.id] = {"vc": request.SuggestionsRequest.info.vectorClock, "books": request.SuggestionsRequest.booksInCart}
         response = order.ErrorResponse(error = False)
         return response
     
