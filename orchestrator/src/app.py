@@ -32,7 +32,7 @@ def initDetectFraud(id, creditCard, billingAddress):
         print("-- call fraud detection --")
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         # Call the service through the stub object.
-        execInfo = suggestions.ExecInfo(id = id, vectorClock = [0,0,0])
+        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
         request = fraud_detection.DetectFraud(
             info= execInfo, BillingAddress=billingAddress, CreditCard=creditCard
         )
@@ -53,7 +53,7 @@ def initSuggestions(id, books_json):
                 suggestions.Book(bookId=123, title=book.get("name"), author="John Doe")
             )
         
-        execInfo = suggestions.ExecInfo(id = id, vectorClock = [0,0,0])
+        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
         request = suggestions.SuggestionsRequest(info=execInfo, booksInCart=books)
         response = stub.InitGetSuggestions(request)
     return response.error
@@ -66,7 +66,7 @@ def initVerifyTransaction(id, creditCard, name, billingaddress):
         print("-- call transaction verification --")
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
-        execInfo = suggestions.ExecInfo(id = id, vectorClock = [0,0,0])
+        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
         request = transaction_verification.TransactionRequest(
             info = execInfo, name=name, CreditCard=creditCard, BillingAddress=billingaddress
         )
