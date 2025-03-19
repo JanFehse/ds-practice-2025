@@ -67,7 +67,7 @@ def initVerifyTransaction(id, creditCard, name, billingaddress):
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
         execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
-        request = transaction_verification.InitTransactionRequest(
+        request = transaction_verification.TransactionRequest(
             info = execInfo, name=name, CreditCard=creditCard, BillingAddress=billingaddress
         )
         response = stub.InitVerifyTransaction(request)
