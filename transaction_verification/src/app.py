@@ -116,6 +116,13 @@ class TransactionVerificationService(
                 f"Denied credit card for order {id}"
             )
             return False
+    
+    def callFraudDetection(self, id):
+        with grpc.insecure_channel("fraud_detection:50051") as channel:
+            stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
+            request = order.ExecInfo(id = id, vectorClock = orders.info.vectorClock)
+            stub.DetectFraud(request)
+        return response
 
 
 def serve():
