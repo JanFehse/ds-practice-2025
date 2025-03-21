@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import threading
 import random
 import sys
 import os
@@ -73,13 +74,23 @@ def initVerifyTransaction(id, creditCard, name, billingaddress):
         response = stub.InitVerifyTransaction(request)
     return response.error
 
+def callVerifyTransaction(id):
+    # Establish a connection with the verify-transaction gRPC service.
+    with grpc.insecure_channel("transaction_verification:50052") as channel:
+        # Create a stub object.
+        print("-- start microservices --")
+        stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
+        # Call the service through the stub object.
+        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
+        response = stub.VerifyTransaction(execInfo)
+    return response.error
 
 
 # Import Flask.
 # Flask is a web framework for Python.
 # It allows you to build a web application quickly.
 # For more information, see https://flask.palletsprojects.com/en/latest/
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 
@@ -88,6 +99,8 @@ app = Flask(__name__)
 # Enable CORS for the app.
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+response_locks = {}
+responses = {}
 
 @app.route("/checkout", methods=["POST"])
 def checkout():
@@ -129,22 +142,44 @@ def checkout():
 
     if initDetectFraud_error or initSuggestions_error or initVerifyTransaction_error: 
         return {"orderId": "123456", "status": "Order Rejected", "suggestedBooks": []}
-
-    # suggested_books = []
-    # for book in suggestions:
-    #     suggested_books.append(
-    #         {"bookId": book.bookId, "title": book.title, "author": book.author}
-    #     )
-
     
-    # order_status_response = {
-    #     "orderId": random_orderId,
-    #     "status": "Order Approved",
-    #     "suggestedBooks": suggested_books,
-    # }
-    # Return the response
+    responses[random_orderId] = None
+    response_locks[random_orderId] = threading.Event()
 
-    return {"orderId": "0", "status": "Order Rejected", "suggestedBooks": []}
+    #threading.Thread(target=call_microservices, args=(request_id)).start() call Function that 
+
+    if response_locks[random_orderId].wait(timeout=5):  # Adjust timeout as needed
+        response = responses.pop(random_orderId)
+    else:
+        print("---No response in 5 seconds for OrderID:", random_orderId)
+        return {"orderId": random_orderId, "status": "Order Rejected", "suggestedBooks": []}
+
+    suggested_books = []
+    for book in response["books"]:
+        suggested_books.append(
+            {"bookId": book.bookId, "title": book.title, "author": book.author}
+        )
+
+    order_status_response = {
+        "orderId": random_orderId,
+        "status": "Order Approved" if response["status"] else "Order Rejected",
+        "suggestedBooks": suggested_books,
+    }
+    #Return the response
+
+    return order_status_response
+
+@app.route('/callback', methods=['POST'])
+def callback():
+    """Receives responses from microservices."""
+    response_data = request.json
+    request_id = response_data.get("id")
+
+    if request_id in responses:
+        responses[request_id] = response_data
+        response_locks[request_id].set()  # Notify waiting thread
+
+    return jsonify({"status": "received"})
 
 
 if __name__ == "__main__":
