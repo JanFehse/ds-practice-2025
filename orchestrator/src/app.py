@@ -60,8 +60,13 @@ def initSuggestions(id, books_json):
     return response.error
 
 
-def initVerifyTransaction(id, creditCard, name, billingaddress):
+def initVerifyTransaction(id, creditCard, name, billingaddress, books_json):
     # Establish a connection with the verify-transaction gRPC service.
+    books = []
+    for book in books_json:
+        books.append(
+            suggestions.Book(bookId=123, title=book.get("name"), author="John Doe")
+        )
     with grpc.insecure_channel("transaction_verification:50052") as channel:
         # Create a stub object.
         print("-- call transaction verification --")
@@ -69,19 +74,19 @@ def initVerifyTransaction(id, creditCard, name, billingaddress):
         # Call the service through the stub object.
         execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
         request = transaction_verification.TransactionRequest(
-            info = execInfo, name=name, CreditCard=creditCard, BillingAddress=billingaddress
+            info = execInfo, name=name, CreditCard=creditCard, BillingAddress=billingaddress, booksInCart=books
         )
         response = stub.InitVerifyTransaction(request)
     return response.error
 
-def callVerifyTransaction(id):
+def callVerifyTransaction(order_id):
     # Establish a connection with the verify-transaction gRPC service.
     with grpc.insecure_channel("transaction_verification:50052") as channel:
         # Create a stub object.
         print("-- start microservices --")
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         # Call the service through the stub object.
-        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
+        execInfo = order.ExecInfo(id = order_id, vectorClock = [0,0,0])
         response = stub.VerifyTransaction(execInfo)
     return response.error
 
@@ -131,7 +136,7 @@ def checkout():
     with ThreadPoolExecutor(max_workers=3) as executor:
         future_initDetectFraud_error = executor.submit(initDetectFraud, random_orderId, Credit_Card, Billing_Address)
         future_initSuggestions_error = executor.submit(initSuggestions, random_orderId, request_data.get("items"))
-        future_initVerifyTransaction_error = executor.submit(initVerifyTransaction, random_orderId, Credit_Card, request_data.get("name"), Billing_Address)
+        future_initVerifyTransaction_error = executor.submit(initVerifyTransaction, random_orderId, Credit_Card, request_data.get("name"), Billing_Address, request_data.get("items"))
 
         initDetectFraud_error = future_initDetectFraud_error.result()
         initSuggestions_error = future_initSuggestions_error.result()
@@ -146,7 +151,7 @@ def checkout():
     responses[random_orderId] = None
     response_locks[random_orderId] = threading.Event()
 
-    #threading.Thread(target=call_microservices, args=(request_id)).start() call Function that 
+    threading.Thread(target=callVerifyTransaction, args=[random_orderId]).start() #call Function that 
 
     if response_locks[random_orderId].wait(timeout=5):  # Adjust timeout as needed
         response = responses.pop(random_orderId)

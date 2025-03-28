@@ -12,6 +12,8 @@ import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
 import transaction_verification.transaction_verification_pb2 as transaction_verification
 import transaction_verification.transaction_verification_pb2_grpc as transaction_verification_grpc
+import fraud_detection.fraud_detection_pb2 as fraud_detection
+import fraud_detection.fraud_detection_pb2_grpc as fraud_detection_grpc
 
 import grpc
 from concurrent import futures
@@ -32,7 +34,7 @@ class TransactionVerificationService(
         return response
     
     def VerifyTransaction(self, request, context):
-        id = request.info.id
+        id = request.id
         print(f"-- transaction verification called for order {id} --")
         response = order.ErrorResponse()
         
@@ -63,7 +65,7 @@ class TransactionVerificationService(
             return False
 
         order_data = self.orders[id]["data"]
-    
+        print(order_data)
         if hasattr(order_data, "booksInCart") and len(order_data.booksInCart) > 0:
             print(f"Verified cart with {len(order_data.booksInCart)} books")
             order_data.info.vectorClock[0] += 1
@@ -86,6 +88,11 @@ class TransactionVerificationService(
             and hasattr(order_data.BillingAddress, "country")
         ):
             print(f"Verified user data for order {id}")
+            order_data.info.vectorClock[0] += 1
+            with grpc.insecure_channel("fraud_detection:50051") as channel:
+                stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
+                request = order.ExecInfo(id = id, vectorClock = order_data.info.vectorClock)
+            stub.DetectFraudBillingadress(request)
             return True
         else:    
             print(f"Denied user data for order {id}")
@@ -110,19 +117,17 @@ class TransactionVerificationService(
             print(
                 f"Verified credit card for order {id}"
             )
+            order_data.info.vectorClock[0] += 1
+            with grpc.insecure_channel("fraud_detection:50051") as channel:
+                stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
+                request = order.ExecInfo(id = id, vectorClock = order_data.info.vectorClock)
+            stub.DetectFraudCreditCard(request)
             return True
         else:
             print(
                 f"Denied credit card for order {id}"
             )
             return False
-    
-    def callFraudDetection(self, id):
-        with grpc.insecure_channel("fraud_detection:50051") as channel:
-            stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
-            request = order.ExecInfo(id = id, vectorClock = orders.info.vectorClock)
-            stub.DetectFraud(request)
-        return response
 
 
 def serve():

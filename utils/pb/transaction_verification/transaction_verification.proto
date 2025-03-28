@@ -3,6 +3,7 @@ syntax = "proto3";
 package bookstore;
 
 import "shared/order.proto";
+import "suggestions/suggestions.proto";
 
 service TransactionVerificationService {
     rpc InitVerifyTransaction (TransactionRequest) returns (ErrorResponse);
@@ -14,6 +15,7 @@ message TransactionRequest {
     string name = 2;
     CreditCard CreditCard = 3;
     BillingAddress BillingAddress = 4;
+    repeated Book booksInCart = 5;
 }
 
 message TransactionResponse {

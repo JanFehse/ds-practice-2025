@@ -41,6 +41,7 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         entry = self.orders.get(request.id)
         self.update_svc(entry["vc"], request.vectorClock)
         response = order.ErrorResponse()
+        print(entry["vc"])
         if entry["vc"] < [2,0,0]:
             response.error = False
             return response
