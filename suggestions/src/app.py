@@ -1,6 +1,7 @@
 import random
 import sys
 import os
+import requests
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -67,12 +68,38 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         suggested_books = random.sample(all_books, 3)
         response = suggestions.SuggestionsResponse(booksSuggested=suggested_books)
 
-        # Print the suggested books
-        # for book in response.booksSuggested:
-        # print(f"Suggested Book: {book.title} by {book.author}")
+        sendToOrchestrator(request.ExecInfo.id, suggested_books)
 
         # Return the response object
         return response
+
+def sendToOrchestrator(id, books):
+    orchestrator_url ='http://localhost:8081/callback'
+    
+    suggested_books = []
+    for book in books["books"]:
+        suggested_books.append(
+            {"bookId": book.bookId, "title": book.title, "author": book.author}
+        )
+
+    order_status_response = {
+        "id": id,
+        "status": "Order Approved",
+        "suggestedBooks": suggested_books,
+    }
+
+    try:
+        # Sending POST request
+        response = requests.post(orchestrator_url, json=order_status_response)
+
+        # Checking response
+        if response.status_code == 200:
+            print("Response from orchestrator:", response.json()) 
+        else:
+            print("Error:", response.status_code, response.text)
+
+    except requests.exceptions.RequestException as e:
+        print("Request failed:", e)
 
 
 def serve():
