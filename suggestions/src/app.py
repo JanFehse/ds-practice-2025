@@ -31,8 +31,9 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         return response
     
     def merge(self, local_vc, incoming_vc):
-        for i in range (3):
-            new_vc = max(local_vc[i], incoming_vc[i])
+        new_vc = [0]*3
+        for i in range(3):
+            new_vc[i] = max(local_vc[i], incoming_vc[i])
         return new_vc
     
     def merge_and_increment(self, local_vc, incoming_vc):
@@ -42,15 +43,11 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
     def GetSuggestions(self, request, context):
         # Create a SuggestionsResponse object
         print("-- suggestion service called --")
-        entry = self.orders.get(request.ExecInfo.id)
-    
-        if(self.merge(entry["vc"], request.ExecInfo.vc) < [2,2,0]):
+        entry = self.orders.get(request.id)
+        if(self.merge(entry["vc"], request.vectorClock) < [2,2,0]):
             print("-- suggestion service called - waiting for process--")
             return True
-
-        self.merge_and_increment(entry["vc"], request.ExecInfo.vc)
-
-        response = suggestions.SuggestionsResponse()
+        self.merge_and_increment(entry["vc"], request.vectorClock)
         # for book in request.booksInCart:
         #    print(f"Book in Cart: {book.title} by {book.author}")
         # Set the booksSuggested field of the response object
@@ -64,24 +61,25 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
             suggestions.Book(bookId=107, title="The Catcher in the Rye", author="J.D. Salinger"),
             suggestions.Book(bookId=108, title="The Hobbit", author="J.R.R. Tolkien"),
         ]
-
         suggested_books = random.sample(all_books, 3)
-        response = suggestions.SuggestionsResponse(booksSuggested=suggested_books)
-
-        sendToOrchestrator(request.ExecInfo.id, suggested_books)
+        
+        sendToOrchestrator(request.id, suggested_books)
 
         # Return the response object
+        response = order.ErrorResponse()
+        response.error = False
+        print("done with call")
         return response
 
 def sendToOrchestrator(id, books):
     orchestrator_url ='http://localhost:8081/callback'
-    
+    print("line 76")
     suggested_books = []
-    for book in books["books"]:
+    for book in books:
         suggested_books.append(
             {"bookId": book.bookId, "title": book.title, "author": book.author}
         )
-
+    print("line 82")
     order_status_response = {
         "id": id,
         "status": "Order Approved",

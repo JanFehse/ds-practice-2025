@@ -27,10 +27,10 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     svc_index = 1
     #Initialize into orders
     def InitDetectFraud(self, request, context):
-        print("---detect Fraud initialized---")
         self.orders[request.info.id] = {"vc": [0]*self.total_svc, "BillingAdress": request.BillingAddress, "Creditcard": request.CreditCard}
         response = order.ErrorResponse()
         response.error = False
+        print("---detect Fraud initialized---")
         return response
     
     def update_svc(self, local_vc, incoming_vc):
@@ -38,10 +38,10 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
             local_vc[i] = max(local_vc[i], incoming_vc[i])
     
     def DetectFraudBillingadress(self, request, context):
-        entry = self.orders.get(request.id)
-        self.update_svc(entry["vc"], request.vectorClock)
+        print("-- detect Billingadress fraud start --")
         response = order.ErrorResponse()
-        print(entry["vc"])
+        entry = self.orders.get(request.id)
+        self.update_svc(entry["vc"], request.vectorClock)        
         if entry["vc"] < [2,0,0]:
             response.error = False
             return response
@@ -51,7 +51,7 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
             print("-- FRAUD BILLINGADRESS DETECTED ID:", request.id ,"--")
             # TODO call Orchestrator that the order should not be finished
         response.error = False
-        print("-- no Fraud Detected ID:", request.id ,"--")
+        print("-- no Fraud Detected  Billingadress ID:", request.id ,"--")
         entry["vc"][self.svc_index] += 1
         with grpc.insecure_channel("suggestions:50053") as channel:
             stub = suggestions_grpc.SuggestionsServiceStub(channel)
@@ -60,6 +60,7 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         return response
     
     def DetectFraudCreditCard(self, request, context):
+        print("-- detect CreditCard fraud start --")
         entry = self.orders.get(request.id)
         self.update_svc(entry["vc"], request.vectorClock)
         response = order.ErrorResponse()

@@ -51,10 +51,8 @@ class TransactionVerificationService(
                 "userDataVerified": future_verifyUserData.result(),
                 "creditCardVerified": future_verifyCreditCardData.result()
             }
-        
-        if not results["userDataVerified"] or not results["creditCardVerified"]:
-            response.error = False
-            return response
+        response.error = False
+        return response
             
     # check for non empty cart
     def VerifyCart(self, id):
@@ -65,7 +63,6 @@ class TransactionVerificationService(
             return False
 
         order_data = self.orders[id]["data"]
-        print(order_data)
         if hasattr(order_data, "booksInCart") and len(order_data.booksInCart) > 0:
             print(f"Verified cart with {len(order_data.booksInCart)} books")
             order_data.info.vectorClock[0] += 1
@@ -92,14 +89,14 @@ class TransactionVerificationService(
             with grpc.insecure_channel("fraud_detection:50051") as channel:
                 stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
                 request = order.ExecInfo(id = id, vectorClock = order_data.info.vectorClock)
-            stub.DetectFraudBillingadress(request)
+                stub.DetectFraudBillingadress(request)
             return True
         else:    
             print(f"Denied user data for order {id}")
             return False
     
     def VerifyCreditCardData(self, id):
-        print("-- transaction verification - verify credit card data for order {id} --")
+        print(f"-- transaction verification - verify credit card data for order {id} --")
         order_data = self.orders[id]["data"]
         if (
             len(order_data.CreditCard.CreditCardNumber) == 16
@@ -121,7 +118,7 @@ class TransactionVerificationService(
             with grpc.insecure_channel("fraud_detection:50051") as channel:
                 stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
                 request = order.ExecInfo(id = id, vectorClock = order_data.info.vectorClock)
-            stub.DetectFraudCreditCard(request)
+                stub.DetectFraudCreditCard(request)
             return True
         else:
             print(
