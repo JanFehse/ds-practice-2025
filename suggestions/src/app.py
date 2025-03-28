@@ -68,7 +68,6 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         # Return the response object
         response = order.ErrorResponse()
         response.error = False
-        print("done with call")
         return response
 
 def sendToOrchestrator(id, books):
