@@ -216,8 +216,8 @@ def checkout():
         deleteId(order_id)
     else:
         with grpc.insecure_channel("order_queue:50055") as channel:
-            stub = order_queue_grpc.QueueServiceStub(channel)
-            enqueue_order_request = order_queue.EnqueueOrderRequest(
+            stub = order_queue_grpc.OrderQueueServiceStub(channel)
+            enqueue_order_request = order_queue.QueueOrderRequest(
                 info=order.ExecInfo(id = order_id),
                 booksInCart=Ordered_Books,
                 name=request_data.get("name"),
