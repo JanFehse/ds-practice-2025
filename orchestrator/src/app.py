@@ -100,16 +100,16 @@ def deleteOrderIdSuggestions(order_id):
     return response.error
 
 def deleteOrderIdTransaction(order_id):
-    with grpc.insecure_channel("suggestions:50052") as channel:
+    with grpc.insecure_channel("transaction_verification:50052") as channel:
         stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
-        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
+        execInfo = order.ExecInfo(id = order_id, vectorClock = [0,0,0])
         response = stub.DeleteOrder(execInfo)
     return response.error
 
 def deleteOrderIdFraudDetection(order_id):
-    with grpc.insecure_channel("suggestions:50051") as channel:
+    with grpc.insecure_channel("fraud_detection:50051") as channel:
         stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
-        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
+        execInfo = order.ExecInfo(id = order_id, vectorClock = [0,0,0])
         response = stub.DeleteOrder(execInfo)
     return response.error
 
@@ -145,6 +145,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 response_locks = {}
 responses = {}
 global_id = 100000
+id_lock = threading.Lock()
 
 @app.route("/checkout", methods=["POST"])
 def checkout():
@@ -179,7 +180,12 @@ def checkout():
     
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
-    order_id = random.randint(100000, 999999)
+    global global_id
+    global id_lock
+    id_lock.acquire()
+    order_id = global_id
+    global_id += 1
+    id_lock.release()
     with ThreadPoolExecutor(max_workers=3) as executor:
         future_initDetectFraud_error = executor.submit(initDetectFraud, order_id, Credit_Card, Billing_Address)
         future_initSuggestions_error = executor.submit(initSuggestions, order_id, request_data.get("items"))

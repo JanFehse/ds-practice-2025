@@ -151,6 +151,7 @@ class TransactionVerificationService(
         pass
         
     def DeleteOrder(self, request, context):
+        print(f"--deleting id: {request.id}--")
         self.orders.pop(request.id, None)
         response = order.ErrorResponse()
         response.error = False
