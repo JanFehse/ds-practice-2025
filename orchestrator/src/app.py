@@ -195,7 +195,10 @@ def checkout():
     else:
         print("---No response in 5 seconds for OrderID:", order_id)
         return {"orderId": order_id, "status": "Order Rejected", "suggestedBooks": []}
-
+    
+    if response["status"] == "Order Rejected":
+        deleteId(order_id)
+    
     order_status_response = {
         "orderId": order_id,
         "status": response["status"],
@@ -211,11 +214,7 @@ def callback():
     response_data = request.json
     request_id = response_data.get("id")
     responses[request_id] = response_data
-    
-    if request_id in responses:
-        if response_data["status"] == "Order Rejected":
-            deleteId(request_id)
-        response_locks[request_id].set()  # Notify waiting thread
+    response_locks[request_id].set()  # Notify waiting thread
         
 
     return jsonify({"status": "received"})
