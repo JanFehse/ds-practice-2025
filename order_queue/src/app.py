@@ -21,7 +21,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     orders = {}
     #Initialize into orders
     def EnqueueOrder(self, request, context):
-        self.orders[request.info.id] = reqeust
+        self.orders[request.info.id] = request
         response = order.ErrorResponse()
         response.error = False
         print("---Order Enqueued---")
