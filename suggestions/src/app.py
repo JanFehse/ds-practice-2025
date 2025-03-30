@@ -2,7 +2,7 @@ import random
 import sys
 import os
 import requests
-
+import threading
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -26,28 +26,36 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
     svc_idx = 2
     def InitGetSuggestions(self, request, context):
         print("---suggestions initalized---")
-        self.orders[request.info.id] = {"vc": request.info.vectorClock, "books": request.booksInCart}
+        self.orders[request.info.id] = {"vc": request.info.vectorClock, "books": request.booksInCart, 'lock': threading.Lock()}
         response = order.ErrorResponse(error = False)
         return response
     
     def merge(self, local_vc, incoming_vc):
-        new_vc = [0]*3
         for i in range(3):
-            new_vc[i] = max(local_vc[i], incoming_vc[i])
-        return new_vc
+            local_vc[i] = max(local_vc[i], incoming_vc[i])
     
-    def merge_and_increment(self, local_vc, incoming_vc):
-        local_vc = self.merge(local_vc, incoming_vc)
+    def increment(self, local_vc):
         local_vc[self.svc_idx] +=1
         
     def GetSuggestions(self, request, context):
         # Create a SuggestionsResponse object
         print("-- suggestion service called --")
+        response = order.ErrorResponse()
         entry = self.orders.get(request.id)
-        if(self.merge(entry["vc"], request.vectorClock) < [2,2,0]):
+        if entry == None:
+            print("--id already deleted--")
+            response.error = False
+            return response
+        entry['lock'].acquire()
+        self.merge(entry["vc"], request.vectorClock)
+        
+        if(entry["vc"][0] < 3 or entry["vc"][1] < 2 or entry["vc"][2] < 0):
             print("-- suggestion service called - waiting for process--")
-            return True
-        self.merge_and_increment(entry["vc"], request.vectorClock)
+            response.error = False
+            entry['lock'].release()
+            return response
+        self.increment(entry["vc"])
+        entry['lock'].release()
         all_books = [
             suggestions.Book(bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"),
             suggestions.Book(bookId=102, title="1984", author="George Orwell"),
@@ -63,11 +71,11 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         self.sendToOrchestrator(request.id, suggested_books)
 
         # Return the response object
-        response = order.ErrorResponse()
         response.error = False
         return response
     
     def DeleteOrder(self, request, context):
+        print(f"--deleting id: {request.id}--")
         self.orders.pop(request.id, None)
         response = order.ErrorResponse()
         response.error = False

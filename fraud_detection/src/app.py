@@ -1,6 +1,8 @@
 import sys
 import os
 import random
+import requests
+import threading
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -27,7 +29,8 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     svc_index = 1
     #Initialize into orders
     def InitDetectFraud(self, request, context):
-        self.orders[request.info.id] = {"vc": [0]*self.total_svc, "BillingAdress": request.BillingAddress, "Creditcard": request.CreditCard}
+        self.orders[request.info.id] = {"vc": [0]*self.total_svc, 'lock': threading.Lock(),
+            "BillingAdress": request.BillingAddress, "Creditcard": request.CreditCard}
         response = order.ErrorResponse()
         response.error = False
         print("---detect Fraud initialized---")
@@ -41,7 +44,9 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         print("-- detect Billingadress fraud start --")
         response = order.ErrorResponse()
         entry = self.orders.get(request.id)
-        self.update_svc(entry["vc"], request.vectorClock)        
+        entry['lock'].acquire()
+        self.update_svc(entry["vc"], request.vectorClock) 
+        entry['lock'].release()    
         if entry["vc"] < [2,0,0]:
             response.error = False
             return response
@@ -49,20 +54,26 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         r = random.random()
         if r < 0.02:
             print("-- FRAUD BILLINGADRESS DETECTED ID:", request.id ,"--")
-            # TODO call Orchestrator that the order should not be finished
+            self.denied_order(request.id)
+            response.error = False
+            return response
         response.error = False
         print("-- no Fraud Detected  Billingadress ID:", request.id ,"--")
+        entry['lock'].acquire()
         entry["vc"][self.svc_index] += 1
         with grpc.insecure_channel("suggestions:50053") as channel:
             stub = suggestions_grpc.SuggestionsServiceStub(channel)
             request = order.ExecInfo(id=request.id, vectorClock=entry["vc"])
             stub.GetSuggestions(request)
+        entry['lock'].release()
         return response
     
     def DetectFraudCreditCard(self, request, context):
         print("-- detect CreditCard fraud start --")
         entry = self.orders.get(request.id)
+        entry['lock'].acquire()
         self.update_svc(entry["vc"], request.vectorClock)
+        entry['lock'].release()
         response = order.ErrorResponse()
         if entry["vc"] < [2,0,0]:
             response.error = False
@@ -71,17 +82,42 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
         r = random.random()
         if r < 0.02:
             print("-- FRAUD CREDITCARD DETECTED ID:", request.id ,"--")
-            # TODO call Orchestrator that the order should not be finished
+            self.denied_order(request.id)
+            response.error = False
+            return response
         response.error = False
         print("-- no Fraud Detected Creditcard ID:", request.id ,"--")
+        entry['lock'].acquire()
         entry["vc"][self.svc_index] += 1
         with grpc.insecure_channel("suggestions:50053") as channel:
             stub = suggestions_grpc.SuggestionsServiceStub(channel)
             request = order.ExecInfo(id=request.id, vectorClock=entry["vc"])
             stub.GetSuggestions(request)
+        entry['lock'].release()
         return response
+    
+    def denied_order(self, id):
+        orchestrator_url ='http://orchestrator:5000/callback'
+        order_status_response = {
+            "id": id,
+            "status": "Order Rejected",
+            "suggestedBooks": [],
+        }
+        try:
+            # Sending POST request
+            response = requests.post(orchestrator_url, json=order_status_response)
+            # Checking response
+            if response.status_code == 200:
+                print("Response from orchestrator:", response.json()) 
+            else:
+                print("Error:", response.status_code, response.text)
+
+        except requests.exceptions.RequestException as e:
+            print("Request failed:", e)
+        pass
 
     def DeleteOrder(self, request, context):
+        print(f"--deleting id: {request.id}--")
         self.orders.pop(request.id, None)
         response = order.ErrorResponse()
         response.error = False
