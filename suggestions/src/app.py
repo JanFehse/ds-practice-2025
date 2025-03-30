@@ -48,9 +48,6 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
             print("-- suggestion service called - waiting for process--")
             return True
         self.merge_and_increment(entry["vc"], request.vectorClock)
-        # for book in request.booksInCart:
-        #    print(f"Book in Cart: {book.title} by {book.author}")
-        # Set the booksSuggested field of the response object
         all_books = [
             suggestions.Book(bookId=101, title="The Great Gatsby", author="F. Scott Fitzgerald"),
             suggestions.Book(bookId=102, title="1984", author="George Orwell"),
@@ -63,40 +60,43 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         ]
         suggested_books = random.sample(all_books, 3)
         
-        sendToOrchestrator(request.id, suggested_books)
+        self.sendToOrchestrator(request.id, suggested_books)
 
         # Return the response object
         response = order.ErrorResponse()
         response.error = False
         return response
+    
+    def DeleteOrder(self, request, context):
+        self.orders.pop(request.id, None)
+        response = order.ErrorResponse()
+        response.error = False
+        return response
 
-def sendToOrchestrator(id, books):
-    orchestrator_url ='http://orchestrator:5000/callback'
-    print("line 76")
-    suggested_books = []
-    for book in books:
-        suggested_books.append(
-            {"bookId": book.bookId, "title": book.title, "author": book.author}
-        )
-    print("line 82")
-    order_status_response = {
-        "id": id,
-        "status": "Order Approved",
-        "suggestedBooks": suggested_books,
-    }
+    def sendToOrchestrator(self, id, books):
+        orchestrator_url ='http://orchestrator:5000/callback'
+        suggested_books = []
+        for book in books:
+            suggested_books.append(
+                {"bookId": book.bookId, "title": book.title, "author": book.author}
+            )
+        order_status_response = {
+            "id": id,
+            "status": "Order Approved",
+            "suggestedBooks": suggested_books,
+        }
 
-    try:
-        # Sending POST request
-        response = requests.post(orchestrator_url, json=order_status_response)
+        try:
+            # Sending POST request
+            response = requests.post(orchestrator_url, json=order_status_response)
+            # Checking response
+            if response.status_code == 200:
+                print("Response from orchestrator:", response.json()) 
+            else:
+                print("Error:", response.status_code, response.text)
 
-        # Checking response
-        if response.status_code == 200:
-            print("Response from orchestrator:", response.json()) 
-        else:
-            print("Error:", response.status_code, response.text)
-
-    except requests.exceptions.RequestException as e:
-        print("Request failed:", e)
+        except requests.exceptions.RequestException as e:
+            print("Request failed:", e)
 
 
 def serve():

@@ -8,6 +8,7 @@ service FraudDetectionService {
     rpc InitDetectFraud (InitDetectFraudRequest) returns (ErrorResponse);
     rpc DetectFraudBillingadress (ExecInfo) returns (ErrorResponse);
     rpc DetectFraudCreditCard (ExecInfo) returns (ErrorResponse);
+    rpc DeleteOrder (ExecInfo) returns (ErrorResponse);
 }
 
 message InitDetectFraudRequest {

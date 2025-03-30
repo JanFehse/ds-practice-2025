@@ -8,6 +8,7 @@ import "suggestions/suggestions.proto";
 service TransactionVerificationService {
     rpc InitVerifyTransaction (TransactionRequest) returns (ErrorResponse);
     rpc VerifyTransaction (ExecInfo) returns (ErrorResponse);
+    rpc DeleteOrder (ExecInfo) returns (ErrorResponse);
 }
 
 message TransactionRequest {

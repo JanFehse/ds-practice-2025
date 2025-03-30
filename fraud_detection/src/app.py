@@ -81,7 +81,12 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
             stub.GetSuggestions(request)
         return response
 
-
+    def DeleteOrder(self, request, context):
+        self.orders.pop(request.id, None)
+        response = order.ErrorResponse()
+        response.error = False
+        return response
+        
 def serve():
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())

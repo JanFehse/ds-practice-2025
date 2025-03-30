@@ -90,6 +90,42 @@ def callVerifyTransaction(order_id):
         response = stub.VerifyTransaction(execInfo)
     return response.error
 
+def deleteOrderIdSuggestions(order_id):
+    with grpc.insecure_channel("suggestions:50053") as channel:
+        stub = suggestions_grpc.SuggestionsServiceStub(channel)
+        execInfo = order.ExecInfo(id = order_id, vectorClock = [0,0,0])
+        response = stub.DeleteOrder(execInfo)
+    return response.error
+
+def deleteOrderIdTransaction(order_id):
+    with grpc.insecure_channel("suggestions:50052") as channel:
+        stub = suggestions_grpc.TransactionVerificationServiceStub(channel)
+        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
+        response = stub.DeleteOrder(execInfo)
+    return response.error
+
+def deleteOrderIdFraudDetection(order_id):
+    with grpc.insecure_channel("suggestions:50051") as channel:
+        stub = suggestions_grpc.FraudDetectionServiceStub(channel)
+        execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
+        response = stub.DeleteOrder(execInfo)
+    return response.error
+
+def deleteId(order_id):
+    print("--delete rejected id--")
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        future_deleteOrderIdDetectFraud_error = executor.submit(deleteOrderIdFraudDetection, order_id)
+        future_deleteOrderIdSuggestions_error = executor.submit(deleteOrderIdTransaction, order_id)
+        future_deleteOrderIdVerifyTransaction_error = executor.submit(deleteOrderIdSuggestions, order_id)
+
+        deleteOrderIdDetectFraud_error = future_deleteOrderIdDetectFraud_error.result()
+        deleteOrderIdSuggestions_error = future_deleteOrderIdSuggestions_error.result()
+        deleteOrderIdVerifyTransaction_error = future_deleteOrderIdVerifyTransaction_error.result()
+    
+    if deleteOrderIdDetectFraud_error or deleteOrderIdSuggestions_error or deleteOrderIdVerifyTransaction_error:
+        print("--Error deleting Id--")
+    pass 
+    
 
 # Import Flask.
 # Flask is a web framework for Python.
@@ -106,6 +142,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 response_locks = {}
 responses = {}
+global_id = 100000
 
 @app.route("/checkout", methods=["POST"])
 def checkout():
@@ -132,11 +169,11 @@ def checkout():
     )
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
-    random_orderId = random.randint(100000, 999999)
+    order_id = random.randint(100000, 999999)
     with ThreadPoolExecutor(max_workers=3) as executor:
-        future_initDetectFraud_error = executor.submit(initDetectFraud, random_orderId, Credit_Card, Billing_Address)
-        future_initSuggestions_error = executor.submit(initSuggestions, random_orderId, request_data.get("items"))
-        future_initVerifyTransaction_error = executor.submit(initVerifyTransaction, random_orderId, Credit_Card, request_data.get("name"), Billing_Address, request_data.get("items"))
+        future_initDetectFraud_error = executor.submit(initDetectFraud, order_id, Credit_Card, Billing_Address)
+        future_initSuggestions_error = executor.submit(initSuggestions, order_id, request_data.get("items"))
+        future_initVerifyTransaction_error = executor.submit(initVerifyTransaction, order_id, Credit_Card, request_data.get("name"), Billing_Address, request_data.get("items"))
 
         initDetectFraud_error = future_initDetectFraud_error.result()
         initSuggestions_error = future_initSuggestions_error.result()
@@ -148,20 +185,20 @@ def checkout():
     if initDetectFraud_error or initSuggestions_error or initVerifyTransaction_error: 
         return {"orderId": "123456", "status": "Order Rejected", "suggestedBooks": []}
     
-    responses[random_orderId] = None
-    response_locks[random_orderId] = threading.Event()
+    responses[order_id] = None
+    response_locks[order_id] = threading.Event()
 
-    threading.Thread(target=callVerifyTransaction, args=[random_orderId]).start() #call Function that 
+    threading.Thread(target=callVerifyTransaction, args=[order_id]).start() #call Function that 
 
-    if response_locks[random_orderId].wait(timeout=5):  # Adjust timeout as needed
-        response = responses.pop(random_orderId)
+    if response_locks[order_id].wait(timeout=5):  # Adjust timeout as needed
+        response = responses.pop(order_id)
     else:
-        print("---No response in 5 seconds for OrderID:", random_orderId)
-        return {"orderId": random_orderId, "status": "Order Rejected", "suggestedBooks": []}
+        print("---No response in 5 seconds for OrderID:", order_id)
+        return {"orderId": order_id, "status": "Order Rejected", "suggestedBooks": []}
 
     order_status_response = {
-        "orderId": random_orderId,
-        "status": "Order Approved" if response["status"] else "Order Rejected",
+        "orderId": order_id,
+        "status": response["status"],
         "suggestedBooks": response["suggestedBooks"],
     }
     #Return the response
@@ -173,10 +210,13 @@ def callback():
     """Receives responses from microservices."""
     response_data = request.json
     request_id = response_data.get("id")
-
+    responses[request_id] = response_data
+    
     if request_id in responses:
-        responses[request_id] = response_data
+        if response_data["status"] == "Order Rejected":
+            deleteId(request_id)
         response_locks[request_id].set()  # Notify waiting thread
+        
 
     return jsonify({"status": "received"})
 

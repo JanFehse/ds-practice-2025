@@ -1,6 +1,7 @@
 import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
+import requests
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -41,6 +42,7 @@ class TransactionVerificationService(
         verifiedCart = self.VerifyCart(id)
         
         if not verifiedCart:
+            self.denied_order(id)
             response.error = False
             return response
         
@@ -93,6 +95,7 @@ class TransactionVerificationService(
             return True
         else:    
             print(f"Denied user data for order {id}")
+            self.denied_order(id)
             return False
     
     def VerifyCreditCardData(self, id):
@@ -124,7 +127,33 @@ class TransactionVerificationService(
             print(
                 f"Denied credit card for order {id}"
             )
+            self.denied_order(id)
             return False
+    
+    def denied_order(id):
+        orchestrator_url ='http://orchestrator:5000/callback'
+        order_status_response = {
+            "id": id,
+            "status": "Order Rejected",
+            "suggestedBooks": [],
+        }
+        try:
+            # Sending POST request
+            response = requests.post(orchestrator_url, json=order_status_response)
+            # Checking response
+            if response.status_code == 200:
+                print("Response from orchestrator:", response.json()) 
+            else:
+                print("Error:", response.status_code, response.text)
+
+        except requests.exceptions.RequestException as e:
+            print("Request failed:", e)
+        
+    def DeleteOrder(self, request, context):
+        self.orders.pop(request.id, None)
+        response = order.ErrorResponse()
+        response.error = False
+        return response
 
 
 def serve():

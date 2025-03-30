@@ -45,6 +45,11 @@ class TransactionVerificationServiceStub(object):
                 request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
+        self.DeleteOrder = channel.unary_unary(
+                '/bookstore.TransactionVerificationService/DeleteOrder',
+                request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
+                _registered_method=True)
 
 
 class TransactionVerificationServiceServicer(object):
@@ -62,6 +67,12 @@ class TransactionVerificationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def DeleteOrder(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_TransactionVerificationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -72,6 +83,11 @@ def add_TransactionVerificationServiceServicer_to_server(servicer, server):
             ),
             'VerifyTransaction': grpc.unary_unary_rpc_method_handler(
                     servicer.VerifyTransaction,
+                    request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
+            'DeleteOrder': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteOrder,
                     request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
@@ -128,6 +144,33 @@ class TransactionVerificationService(object):
             request,
             target,
             '/bookstore.TransactionVerificationService/VerifyTransaction',
+            shared_dot_order__pb2.ExecInfo.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteOrder(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.TransactionVerificationService/DeleteOrder',
             shared_dot_order__pb2.ExecInfo.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,
