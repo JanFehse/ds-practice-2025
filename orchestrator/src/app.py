@@ -159,16 +159,10 @@ def checkout():
         print("---No response in 5 seconds for OrderID:", random_orderId)
         return {"orderId": random_orderId, "status": "Order Rejected", "suggestedBooks": []}
 
-    suggested_books = []
-    for book in response["books"]:
-        suggested_books.append(
-            {"bookId": book.bookId, "title": book.title, "author": book.author}
-        )
-
     order_status_response = {
         "orderId": random_orderId,
         "status": "Order Approved" if response["status"] else "Order Rejected",
-        "suggestedBooks": suggested_books,
+        "suggestedBooks": response["suggestedBooks"],
     }
     #Return the response
 

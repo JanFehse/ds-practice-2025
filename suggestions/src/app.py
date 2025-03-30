@@ -71,7 +71,7 @@ class SuggestionService(suggestions_grpc.SuggestionsServiceServicer):
         return response
 
 def sendToOrchestrator(id, books):
-    orchestrator_url ='http://localhost:8081/callback'
+    orchestrator_url ='http://orchestrator:5000/callback'
     print("line 76")
     suggested_books = []
     for book in books:
