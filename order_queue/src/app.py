@@ -1,0 +1,63 @@
+import sys
+import os
+from concurrent import futures
+from concurrent.futures import ThreadPoolExecutor
+
+# This set of lines are needed to import the gRPC stubs.
+# The path of the stubs is relative to the current file, or absolute inside the container.
+# Change these lines only if strictly needed.
+FILE = __file__ if "__file__" in globals() else os.getenv("PYTHONFILE", "")
+grpc_path = os.path.abspath(os.path.join(FILE, "../../../utils/pb"))
+sys.path.insert(0, grpc_path)
+import shared.order_pb2 as order
+import shared.order_pb2_grpc as order_grpc
+import order_queue.order_queue_pb2 as order_queue
+import order_queue.order_queue_pb2_grpc as order_queue_grpc
+
+import grpc
+
+# Create a class to define the server functions
+class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
+    orders = {}
+    #Initialize into orders
+    def EnqueueOrder(self, request, context):
+        self.orders[request.info.id] = reqeust
+        response = order.ErrorResponse()
+        response.error = False
+        print("---Order Enqueued---")
+        return response
+    
+    def DequeueOrder(self, request, context):
+        # Check if the order is in the orders dictionary
+        if request.id in self.orders:
+            # Remove the order from the dictionary
+            del self.orders[request.id]
+            response = order.ErrorResponse()
+            response.error = False
+            print("---Order Dequeued---")
+        else:
+            response = order.ErrorResponse()
+            response.error = True
+            print("---Order Not Found---")
+        return response
+
+
+def serve():
+    # Create a gRPC server
+    server = grpc.server(futures.ThreadPoolExecutor())
+    # Add HelloService
+    order_queue_grpc.add_OrderQueueServiceServicer_to_server(
+        OrderQueueService(), server
+    )
+    # Listen on port 50051
+    port = "50055"
+    server.add_insecure_port("[::]:" + port)
+    # Start the server
+    server.start()
+    print("Order Queue server started. Listening on port 50055.")
+    # Keep thread alive
+    server.wait_for_termination()
+
+
+if __name__ == "__main__":
+    serve()

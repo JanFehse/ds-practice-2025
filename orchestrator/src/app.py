@@ -22,6 +22,8 @@ import suggestions.suggestions_pb2_grpc as suggestions_grpc
 import transaction_verification.transaction_verification_pb2 as transaction_verification
 import transaction_verification.transaction_verification_pb2_grpc as transaction_verification_grpc
 
+import order_queue.order_queue_pb2 as order_queue
+import order_queue.order_queue_pb2_grpc as order_queue_grpc
 
 import grpc
 
@@ -167,6 +169,14 @@ def checkout():
         expirationDate=request_data.get("creditCard").get("expirationDate"),
         cvv=request_data.get("creditCard").get("cvv"),
     )
+    
+    Ordered_Books = []
+    for item in request_data.get("items"):
+        Ordered_Books.append(order_queue.OrderedBook(
+            title=item.get("name"),
+            quantity=item.get("quantity")
+        ))
+    
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response
     order_id = random.randint(100000, 999999)
@@ -198,6 +208,22 @@ def checkout():
     
     if response["status"] == "Order Rejected":
         deleteId(order_id)
+    else:
+        with grpc.insecure_channel("order_queue:50055") as channel:
+            stub = order_queue_grpc.QueueServiceStub(channel)
+            request = order_queue.EnqueueOrderRequest(
+                info=order.ExecInfo(id = order_id),
+                booksInCart=Ordered_Books,
+                name=request_data.get("name"),
+                CreditCard=Credit_Card,
+                BillingAddress=Billing_Address
+            )
+            enqueue_response = stub.EnqueueOrder(request)
+    
+    if enqueue_response.error:
+        print("---Error enqueuing order---")
+        deleteId(order_id)
+        return {"orderId": order_id, "status": "Order Rejected", "suggestedBooks": []}
     
     order_status_response = {
         "orderId": order_id,

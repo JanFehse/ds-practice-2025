@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bookstore;
+
+import "shared/order.proto";
+
+service OrderQueueService {
+    rpc EnqueueOrder (QueueOrderRequest) returns (ErrorResponse);
+    rpc DequeueOrder (ExecInfo) returns (ErrorResponse);
+}
+
+message QueueOrderRequest {
+    ExecInfo info = 1;
+    repeated OrderedBook booksInCart = 2;
+    string name = 3;
+    CreditCard CreditCard = 4;
+    BillingAddress BillingAddress = 5;
+}
+
+message OrderedBook {
+    string title = 1;
+    int64 quantity = 2;
+}

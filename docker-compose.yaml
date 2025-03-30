@@ -57,7 +57,7 @@ services:
       - ./utils:/app/utils
       # Mount the fraud_detection/src directory in the current directory to the /app/fraud_detection/src directory in the container
       - ./fraud_detection/src:/app/fraud_detection/src
-  
+
   transaction_verification:
     build:
       # Use the current directory as the build context
@@ -103,3 +103,16 @@ services:
       - ./utils:/app/utils
       # Mount the suggestions/src directory in the current directory to the /app/suggestions/src directory in the container
       - ./suggestions/src:/app/suggestions/src
+
+  order_queue:
+    build:
+      context: ./
+      dockerfile: ./order_queue/Dockerfile
+    ports:
+      - 50055:50055
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_queue/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./order_queue/src:/app/order_queue/src
