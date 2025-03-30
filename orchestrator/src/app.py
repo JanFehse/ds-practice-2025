@@ -99,14 +99,14 @@ def deleteOrderIdSuggestions(order_id):
 
 def deleteOrderIdTransaction(order_id):
     with grpc.insecure_channel("suggestions:50052") as channel:
-        stub = suggestions_grpc.TransactionVerificationServiceStub(channel)
+        stub = transaction_verification_grpc.TransactionVerificationServiceStub(channel)
         execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
         response = stub.DeleteOrder(execInfo)
     return response.error
 
 def deleteOrderIdFraudDetection(order_id):
     with grpc.insecure_channel("suggestions:50051") as channel:
-        stub = suggestions_grpc.FraudDetectionServiceStub(channel)
+        stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
         execInfo = order.ExecInfo(id = id, vectorClock = [0,0,0])
         response = stub.DeleteOrder(execInfo)
     return response.error

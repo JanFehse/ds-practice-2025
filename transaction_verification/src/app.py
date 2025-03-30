@@ -130,7 +130,7 @@ class TransactionVerificationService(
             self.denied_order(id)
             return False
     
-    def denied_order(id):
+    def denied_order(self, id):
         orchestrator_url ='http://orchestrator:5000/callback'
         order_status_response = {
             "id": id,
@@ -148,6 +148,7 @@ class TransactionVerificationService(
 
         except requests.exceptions.RequestException as e:
             print("Request failed:", e)
+        pass
         
     def DeleteOrder(self, request, context):
         self.orders.pop(request.id, None)
