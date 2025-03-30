@@ -217,14 +217,14 @@ def checkout():
     else:
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.QueueServiceStub(channel)
-            request = order_queue.EnqueueOrderRequest(
+            enqueue_order_request = order_queue.EnqueueOrderRequest(
                 info=order.ExecInfo(id = order_id),
                 booksInCart=Ordered_Books,
                 name=request_data.get("name"),
                 CreditCard=Credit_Card,
                 BillingAddress=Billing_Address
             )
-            enqueue_response = stub.EnqueueOrder(request)
+            enqueue_response = stub.EnqueueOrder(enqueue_order_request)
     
     if enqueue_response.error:
         print("---Error enqueuing order---")
