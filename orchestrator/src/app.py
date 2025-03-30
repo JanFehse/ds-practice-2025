@@ -210,11 +210,12 @@ def checkout():
         response = responses.pop(order_id)
     else:
         print("---No response in 5 seconds for OrderID:", order_id)
+        deleteId(order_id)
         return {"orderId": order_id, "status": "Order Rejected", "suggestedBooks": []}
     
-    if response["status"] == "Order Rejected":
-        deleteId(order_id)
-    else:
+    deleteId(order_id)
+    
+    if response["status"] == "Order Approved":
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
             enqueue_order_request = order_queue.QueueOrderRequest(
@@ -225,11 +226,10 @@ def checkout():
                 BillingAddress=Billing_Address
             )
             enqueue_response = stub.EnqueueOrder(enqueue_order_request)
-    
-    if enqueue_response.error:
-        print("---Error enqueuing order---")
-        deleteId(order_id)
-        return {"orderId": order_id, "status": "Order Rejected", "suggestedBooks": []}
+        if enqueue_response.error:
+            print("---Error enqueuing order---")
+            return {"orderId": order_id, "status": "Order Rejected", "suggestedBooks": []}
+        
     
     order_status_response = {
         "orderId": order_id,
