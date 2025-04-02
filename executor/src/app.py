@@ -30,11 +30,11 @@ def serve():
         ExecutorService(), server
     )
     # Listen on port 50051
-    port = "50055"
+    port = "50061"
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
-    print("Order Queue server started. Listening on port 50055.")
+    print("Order Queue server started. Listening on port 50060.")
     # Keep thread alive
     server.wait_for_termination()
 
