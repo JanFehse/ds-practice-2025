@@ -41,24 +41,23 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
     def ReceiveToken(self, request, context):
         threading.Thread(target=self.pass_token, args=[]).start()
         print("--received token--")
-        response = order.ExecInfo(error=False)
+        response = order.ErrorResponse(error=False)
         return response
     
     def pass_token(self):
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
             order_response = stub.DequeueOrder(Empty())
-        print(order_response)
-        if order_response.info.error:
+        if not order_response.HasField("order"):
             print("No new order in queue")
-            time.sleep(2)
+            time.sleep(5)
         else:
             threading.Thread(target=self.process_order, args=[order_response]).start()
         start = (self.executors.index(self.myip) + 1) % len(self.executors)
         had_error = True
         while had_error:
             try: 
-                with grpc.insecure_channel(self.executors[start]+"50061") as channel:
+                with grpc.insecure_channel(self.executors[start]+":50061") as channel:
                     stub = executor_grpc.ExecutorServiceStub(channel)
                     print("Passing Token to", self.executors[start])
                     pass_response = stub.ReceiveToken(Empty())
@@ -66,13 +65,15 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
                         had_error = False
                     else:
                         raise Exception('ErrorResponse')
-            except:
+            except Exception as e:
+                print(e)
                 print("error passing token to", self.executors[start])        
                 start = (start + 1) % len(self.executors)
+                time.sleep(10)
         return
         
     def process_order(self, order):
-        id = order.info.id
+        id = order.order.info.id
         print("processing order with id: ", id)
         return
 

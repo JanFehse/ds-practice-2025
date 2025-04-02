@@ -14,8 +14,6 @@ import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
 import order_queue.order_queue_pb2 as order_queue
 import order_queue.order_queue_pb2_grpc as order_queue_grpc
-from order_queue_pb2 import DequeueOrderResponse
-
 
 import grpc
 
@@ -33,13 +31,13 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     
     def DequeueOrder(self, request, context):
         if self.orders:
-            _, order = self.orders.popitem()
-            print(f"---Order {order.info.id} dequeued---")
-            response = DequeueOrderResponse(order=order)
+            _, deq_order = self.orders.popitem()
+            print(f"---Order {deq_order.info.id} dequeued---")
+            response = order_queue.DequeueOrderResponse(order=deq_order)
         else:
-            error = order_pb2.ErrorResponse()
+            error = order.ErrorResponse()
             error.error = True
-            response = DequeueOrderResponse(error=error)
+            response = order_queue.DequeueOrderResponse(error=error)
             print("---No order or dequeueing available---")
         return response
     

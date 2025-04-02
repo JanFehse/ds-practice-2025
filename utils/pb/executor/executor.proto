@@ -7,5 +7,5 @@ import "shared/order.proto";
 import "google/protobuf/empty.proto";
 
 service ExecutorService {
-    rpc ReceiveToken (google.protobuf.Empty) returns (ExecInfo);
+    rpc ReceiveToken (google.protobuf.Empty) returns (ErrorResponse);
 }

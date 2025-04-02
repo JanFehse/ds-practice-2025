@@ -38,7 +38,7 @@ class ExecutorServiceStub(object):
         self.ReceiveToken = channel.unary_unary(
                 '/bookstore.ExecutorService/ReceiveToken',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
 
 
@@ -57,7 +57,7 @@ def add_ExecutorServiceServicer_to_server(servicer, server):
             'ReceiveToken': grpc.unary_unary_rpc_method_handler(
                     servicer.ReceiveToken,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -86,7 +86,7 @@ class ExecutorService(object):
             target,
             '/bookstore.ExecutorService/ReceiveToken',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            shared_dot_order__pb2.ExecInfo.FromString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
             options,
             channel_credentials,
             insecure,
