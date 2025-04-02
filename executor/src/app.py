@@ -2,8 +2,10 @@ import sys
 import os
 import time
 import socket
+import threading
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
+from google.protobuf.empty_pb2 import Empty
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -25,15 +27,54 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
     executors = []
     def __init__(self):
         myip = socket.gethostbyname(socket.gethostname())
+        time.sleep(1)
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
             request = order_queue.CoordinateRequest(portnumber=myip)
             response = stub.CoordinateExecutors(request)
-        self.executors = response.ids
-        print(self.executors)
-        pass
+        self.executors = list(response.ids)
+        self.myip = myip
+        if self.executors.index(myip) == 0:
+            self.pass_token()
+        return
+    
+    def ReceiveToken(self, request, context):
+        threading.Thread(target=self.pass_token, args=[]).start()
+        print("--received token--")
+        response = order.ExecInfo(error=False)
+        return response
+    
+    def pass_token(self):
+        with grpc.insecure_channel("order_queue:50055") as channel:
+            stub = order_queue_grpc.OrderQueueServiceStub(channel)
+            order_response = stub.DequeueOrder(Empty())
+        print(order_response)
+        if order_response.info.error:
+            print("No new order in queue")
+            time.sleep(2)
+        else:
+            threading.Thread(target=self.process_order, args=[order_response]).start()
+        start = (self.executors.index(self.myip) + 1) % len(self.executors)
+        had_error = True
+        while had_error:
+            try: 
+                with grpc.insecure_channel(self.executors[start]+"50061") as channel:
+                    stub = executor_grpc.ExecutorServiceStub(channel)
+                    print("Passing Token to", self.executors[start])
+                    pass_response = stub.ReceiveToken(Empty())
+                    if not pass_response.error:
+                        had_error = False
+                    else:
+                        raise Exception('ErrorResponse')
+            except:
+                print("error passing token to", self.executors[start])        
+                start = (start + 1) % len(self.executors)
+        return
         
-        
+    def process_order(self, order):
+        id = order.info.id
+        print("processing order with id: ", id)
+        return
 
 def serve():
     # Create a gRPC server

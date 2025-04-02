@@ -4,9 +4,11 @@ package bookstore;
 
 import "shared/order.proto";
 
+import "google/protobuf/empty.proto";
+
 service OrderQueueService {
     rpc EnqueueOrder (QueueOrderRequest) returns (ErrorResponse);
-    rpc DequeueOrder (QueueOrderRequest) returns (QueueOrderRequest);
+    rpc DequeueOrder (google.protobuf.Empty) returns (QueueOrderRequest);
     rpc CoordinateExecutors (CoordinateRequest) returns (CoordinateResponse);
 }
 
@@ -16,10 +18,6 @@ message QueueOrderRequest {
     string name = 3;
     CreditCard CreditCard = 4;
     BillingAddress BillingAddress = 5;
-}
-
-message DequeueOrderRequest {
-    bool dequeue = 1;
 }
 
 message OrderedBook {

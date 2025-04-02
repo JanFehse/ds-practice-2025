@@ -23,23 +23,24 @@ _sym_db = _symbol_database.Default()
 
 
 from shared import order_pb2 as shared_dot_order__pb2
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dorder_queue/order_queue.proto\x12\tbookstore\x1a\x12shared/order.proto\"\xcf\x01\n\x11QueueOrderRequest\x12!\n\x04info\x18\x01 \x01(\x0b\x32\x13.bookstore.ExecInfo\x12+\n\x0b\x62ooksInCart\x18\x02 \x03(\x0b\x32\x16.bookstore.OrderedBook\x12\x0c\n\x04name\x18\x03 \x01(\t\x12)\n\nCreditCard\x18\x04 \x01(\x0b\x32\x15.bookstore.CreditCard\x12\x31\n\x0e\x42illingAddress\x18\x05 \x01(\x0b\x32\x19.bookstore.BillingAddress\".\n\x0bOrderedBook\x12\r\n\x05title\x18\x01 \x01(\t\x12\x10\n\x08quantity\x18\x02 \x01(\x03\"\'\n\x11\x43oordinateRequest\x12\x12\n\nportnumber\x18\x01 \x01(\t\"!\n\x12\x43oordinateResponse\x12\x0b\n\x03ids\x18\x01 \x03(\t2\xee\x01\n\x11OrderQueueService\x12\x46\n\x0c\x45nqueueOrder\x12\x1c.bookstore.QueueOrderRequest\x1a\x18.bookstore.ErrorResponse\x12=\n\x0c\x44\x65queueOrder\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponse\x12R\n\x13\x43oordinateExecutors\x12\x1c.bookstore.CoordinateRequest\x1a\x1d.bookstore.CoordinateResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dorder_queue/order_queue.proto\x12\tbookstore\x1a\x12shared/order.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xcf\x01\n\x11QueueOrderRequest\x12!\n\x04info\x18\x01 \x01(\x0b\x32\x13.bookstore.ExecInfo\x12+\n\x0b\x62ooksInCart\x18\x02 \x03(\x0b\x32\x16.bookstore.OrderedBook\x12\x0c\n\x04name\x18\x03 \x01(\t\x12)\n\nCreditCard\x18\x04 \x01(\x0b\x32\x15.bookstore.CreditCard\x12\x31\n\x0e\x42illingAddress\x18\x05 \x01(\x0b\x32\x19.bookstore.BillingAddress\".\n\x0bOrderedBook\x12\r\n\x05title\x18\x01 \x01(\t\x12\x10\n\x08quantity\x18\x02 \x01(\x03\"\'\n\x11\x43oordinateRequest\x12\x12\n\nportnumber\x18\x01 \x01(\t\"!\n\x12\x43oordinateResponse\x12\x0b\n\x03ids\x18\x01 \x03(\t2\xf5\x01\n\x11OrderQueueService\x12\x46\n\x0c\x45nqueueOrder\x12\x1c.bookstore.QueueOrderRequest\x1a\x18.bookstore.ErrorResponse\x12\x44\n\x0c\x44\x65queueOrder\x12\x16.google.protobuf.Empty\x1a\x1c.bookstore.QueueOrderRequest\x12R\n\x13\x43oordinateExecutors\x12\x1c.bookstore.CoordinateRequest\x1a\x1d.bookstore.CoordinateResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'order_queue.order_queue_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_QUEUEORDERREQUEST']._serialized_start=65
-  _globals['_QUEUEORDERREQUEST']._serialized_end=272
-  _globals['_ORDEREDBOOK']._serialized_start=274
-  _globals['_ORDEREDBOOK']._serialized_end=320
-  _globals['_COORDINATEREQUEST']._serialized_start=322
-  _globals['_COORDINATEREQUEST']._serialized_end=361
-  _globals['_COORDINATERESPONSE']._serialized_start=363
-  _globals['_COORDINATERESPONSE']._serialized_end=396
-  _globals['_ORDERQUEUESERVICE']._serialized_start=399
-  _globals['_ORDERQUEUESERVICE']._serialized_end=637
+  _globals['_QUEUEORDERREQUEST']._serialized_start=94
+  _globals['_QUEUEORDERREQUEST']._serialized_end=301
+  _globals['_ORDEREDBOOK']._serialized_start=303
+  _globals['_ORDEREDBOOK']._serialized_end=349
+  _globals['_COORDINATEREQUEST']._serialized_start=351
+  _globals['_COORDINATEREQUEST']._serialized_end=390
+  _globals['_COORDINATERESPONSE']._serialized_start=392
+  _globals['_COORDINATERESPONSE']._serialized_end=425
+  _globals['_ORDERQUEUESERVICE']._serialized_start=428
+  _globals['_ORDERQUEUESERVICE']._serialized_end=673
 # @@protoc_insertion_point(module_scope)
