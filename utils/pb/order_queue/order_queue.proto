@@ -8,7 +8,7 @@ import "google/protobuf/empty.proto";
 
 service OrderQueueService {
     rpc EnqueueOrder (QueueOrderRequest) returns (ErrorResponse);
-    rpc DequeueOrder (google.protobuf.Empty) returns (QueueOrderRequest);
+    rpc DequeueOrder (google.protobuf.Empty) returns (DequeueOrderResponse);
     rpc CoordinateExecutors (CoordinateRequest) returns (CoordinateResponse);
 }
 
@@ -18,6 +18,13 @@ message QueueOrderRequest {
     string name = 3;
     CreditCard CreditCard = 4;
     BillingAddress BillingAddress = 5;
+}
+
+message DequeueOrderResponse {
+    oneof result {
+      QueueOrderRequest order = 1;
+      ErrorResponse error = 2;
+    }
 }
 
 message OrderedBook {

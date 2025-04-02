@@ -21,6 +21,14 @@ class QueueOrderRequest(_message.Message):
     BillingAddress: _order_pb2.BillingAddress
     def __init__(self, info: _Optional[_Union[_order_pb2.ExecInfo, _Mapping]] = ..., booksInCart: _Optional[_Iterable[_Union[OrderedBook, _Mapping]]] = ..., name: _Optional[str] = ..., CreditCard: _Optional[_Union[_order_pb2.CreditCard, _Mapping]] = ..., BillingAddress: _Optional[_Union[_order_pb2.BillingAddress, _Mapping]] = ...) -> None: ...
 
+class DequeueOrderResponse(_message.Message):
+    __slots__ = ("order", "error")
+    ORDER_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    order: QueueOrderRequest
+    error: _order_pb2.ErrorResponse
+    def __init__(self, order: _Optional[_Union[QueueOrderRequest, _Mapping]] = ..., error: _Optional[_Union[_order_pb2.ErrorResponse, _Mapping]] = ...) -> None: ...
+
 class OrderedBook(_message.Message):
     __slots__ = ("title", "quantity")
     TITLE_FIELD_NUMBER: _ClassVar[int]

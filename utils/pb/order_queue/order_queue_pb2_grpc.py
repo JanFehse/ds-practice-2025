@@ -44,7 +44,7 @@ class OrderQueueServiceStub(object):
         self.DequeueOrder = channel.unary_unary(
                 '/bookstore.OrderQueueService/DequeueOrder',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=order__queue_dot_order__queue__pb2.QueueOrderRequest.FromString,
+                response_deserializer=order__queue_dot_order__queue__pb2.DequeueOrderResponse.FromString,
                 _registered_method=True)
         self.CoordinateExecutors = channel.unary_unary(
                 '/bookstore.OrderQueueService/CoordinateExecutors',
@@ -85,7 +85,7 @@ def add_OrderQueueServiceServicer_to_server(servicer, server):
             'DequeueOrder': grpc.unary_unary_rpc_method_handler(
                     servicer.DequeueOrder,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=order__queue_dot_order__queue__pb2.QueueOrderRequest.SerializeToString,
+                    response_serializer=order__queue_dot_order__queue__pb2.DequeueOrderResponse.SerializeToString,
             ),
             'CoordinateExecutors': grpc.unary_unary_rpc_method_handler(
                     servicer.CoordinateExecutors,
@@ -146,7 +146,7 @@ class OrderQueueService(object):
             target,
             '/bookstore.OrderQueueService/DequeueOrder',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            order__queue_dot_order__queue__pb2.QueueOrderRequest.FromString,
+            order__queue_dot_order__queue__pb2.DequeueOrderResponse.FromString,
             options,
             channel_credentials,
             insecure,
