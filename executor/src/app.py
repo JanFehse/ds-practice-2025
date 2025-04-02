@@ -11,43 +11,22 @@ grpc_path = os.path.abspath(os.path.join(FILE, "../../../utils/pb"))
 sys.path.insert(0, grpc_path)
 import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
-import order_queue.order_queue_pb2 as order_queue
-import order_queue.order_queue_pb2_grpc as order_queue_grpc
+import executor.executor_pb2 as executor
+import executor.executor_pb2_grpc as executor_grpc
 
 import grpc
 
 # Create a class to define the server functions
-class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
-    orders = {}
-    #Initialize into orders
-    def EnqueueOrder(self, request, context):
-        self.orders[request.info.id] = request
-        response = order.ErrorResponse()
-        response.error = False
-        print("---Order Enqueued---")
-        return response
-    
-    def DequeueOrder(self, request, context):
-        # Check if the order is in the orders dictionary
-        if request.id in self.orders:
-            # Remove the order from the dictionary
-            del self.orders[request.id]
-            response = order.ErrorResponse()
-            response.error = False
-            print("---Order Dequeued---")
-        else:
-            response = order.ErrorResponse()
-            response.error = True
-            print("---Order Not Found---")
-        return response
+class ExecutorService(order_queue_grpc.ExecutorServiceServicer):
+    #TODO
 
 
 def serve():
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add HelloService
-    order_queue_grpc.add_OrderQueueServiceServicer_to_server(
-        OrderQueueService(), server
+    executor_grpc.add_ExecutorServiceServicer_to_server(
+        ExecutorService(), server
     )
     # Listen on port 50051
     port = "50055"
