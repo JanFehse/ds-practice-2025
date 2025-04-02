@@ -1,5 +1,7 @@
 import sys
 import os
+import time
+import socket
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
@@ -13,14 +15,25 @@ import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
 import executor.executor_pb2 as executor
 import executor.executor_pb2_grpc as executor_grpc
+import order_queue.order_queue_pb2 as order_queue
+import order_queue.order_queue_pb2_grpc as order_queue_grpc
 
 import grpc
 
 # Create a class to define the server functions
 class ExecutorService(executor_grpc.ExecutorServiceServicer):
-    def dequeue(self, request, context):
-        print("TODO")
-
+    executors = []
+    def __init__(self):
+        myip = socket.gethostbyname(socket.gethostname())
+        with grpc.insecure_channel("order_queue:50055") as channel:
+            stub = order_queue_grpc.OrderQueueServiceStub(channel)
+            request = order_queue.CoordinateRequest(portnumber=myip)
+            response = stub.CoordinateExecutors(request)
+        self.executors = response.ids
+        print(self.executors)
+        pass
+        
+        
 
 def serve():
     # Create a gRPC server

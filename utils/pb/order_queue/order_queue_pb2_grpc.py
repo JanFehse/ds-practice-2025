@@ -45,6 +45,11 @@ class OrderQueueServiceStub(object):
                 request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
+        self.CoordinateExecutors = channel.unary_unary(
+                '/bookstore.OrderQueueService/CoordinateExecutors',
+                request_serializer=order__queue_dot_order__queue__pb2.CoordinateRequest.SerializeToString,
+                response_deserializer=order__queue_dot_order__queue__pb2.CoordinateResponse.FromString,
+                _registered_method=True)
 
 
 class OrderQueueServiceServicer(object):
@@ -62,6 +67,12 @@ class OrderQueueServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CoordinateExecutors(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_OrderQueueServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -74,6 +85,11 @@ def add_OrderQueueServiceServicer_to_server(servicer, server):
                     servicer.DequeueOrder,
                     request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
+            'CoordinateExecutors': grpc.unary_unary_rpc_method_handler(
+                    servicer.CoordinateExecutors,
+                    request_deserializer=order__queue_dot_order__queue__pb2.CoordinateRequest.FromString,
+                    response_serializer=order__queue_dot_order__queue__pb2.CoordinateResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -130,6 +146,33 @@ class OrderQueueService(object):
             '/bookstore.OrderQueueService/DequeueOrder',
             shared_dot_order__pb2.ExecInfo.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CoordinateExecutors(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.OrderQueueService/CoordinateExecutors',
+            order__queue_dot_order__queue__pb2.CoordinateRequest.SerializeToString,
+            order__queue_dot_order__queue__pb2.CoordinateResponse.FromString,
             options,
             channel_credentials,
             insecure,

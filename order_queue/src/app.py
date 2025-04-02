@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
@@ -19,6 +20,7 @@ import grpc
 # Create a class to define the server functions
 class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     orders = {}
+    executors = []
     #Initialize into orders
     def EnqueueOrder(self, request, context):
         self.orders[request.info.id] = request
@@ -39,6 +41,13 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
             response = order.ErrorResponse()
             response.error = True
             print("---Order Not Found---")
+        return response
+    
+    def CoordinateExecutors(self, request, context):
+        idExecutor = request.portnumber
+        self.executors.append(idExecutor)
+        time.sleep(1)
+        response = order_queue.CoordinateResponse(ids=self.executors)
         return response
 
 
