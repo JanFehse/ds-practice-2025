@@ -17,8 +17,9 @@ import executor.executor_pb2_grpc as executor_grpc
 import grpc
 
 # Create a class to define the server functions
-class ExecutorService(order_queue_grpc.ExecutorServiceServicer):
-    #TODO
+class ExecutorService(executor_grpc.ExecutorServiceServicer):
+    def dequeue(self, request, context):
+        print("TODO")
 
 
 def serve():
