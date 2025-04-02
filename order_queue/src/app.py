@@ -30,17 +30,14 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         return response
     
     def DequeueOrder(self, request, context):
-        # Check if the order is in the orders dictionary
-        if request.id in self.orders:
-            # Remove the order from the dictionary
-            del self.orders[request.id]
-            response = order.ErrorResponse()
-            response.error = False
-            print("---Order Dequeued---")
+        if self.orders:
+            _, order = self.orders.popitem()
+            print(f"---Order {order.info.id} dequeued---")
+            return order
         else:
-            response = order.ErrorResponse()
-            response.error = True
-            print("---Order Not Found---")
+            response = order_queue.QueueOrderRequest()
+            response.info.error = True
+            print("---No order or dequeueing available---")
         return response
     
     def CoordinateExecutors(self, request, context):
