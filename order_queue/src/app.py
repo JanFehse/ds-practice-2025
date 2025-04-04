@@ -3,8 +3,10 @@ import os
 import time
 import grpc
 import heapq
+import copy
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
+from google.protobuf.empty_pb2 import Empty
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -16,6 +18,9 @@ import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
 import order_queue.order_queue_pb2 as order_queue
 import order_queue.order_queue_pb2_grpc as order_queue_grpc
+import executor.executor_pb2 as executor
+import executor.executor_pb2_grpc as executor_grpc
+
 
 premium_user = {"Fehse", "Eulering", "Beyerle", "Einstein", "Hawking", "Newton", "Curie", "Feynman", "Bohr", "Planck"}
 
@@ -49,7 +54,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     def CoordinateExecutors(self, request, context):
         idExecutor = request.portnumber
         self.executors.append(idExecutor)
-        time.sleep(1)
+        time.sleep(2)
         response = order_queue.CoordinateResponse(ids=self.executors)
         return response
     
@@ -58,6 +63,23 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         num_books = sum(book.quantity for book in order.booksInCart)
         # negative value for max heap
         return (-int(is_premium), -num_books, time.time())
+    
+    def NewElection(self, request, context):
+        print("New Election called")
+        print(self.executors)
+        exec_local = copy.deepcopy(self.executors)
+        self.executors = []
+        print(exec_local)
+        for exec in exec_local:
+            #TODO thread this so that it is parrallel
+            try:
+                with grpc.insecure_channel(exec+":50061") as channel:
+                    stub = executor_grpc.ExecutorServiceStub(channel)
+                    print("Elect Leader calling at ", exec)
+                    stub.ElectLeader(Empty())
+            except:
+                print(exec, "died")
+        return Empty()
 
 
 def serve():

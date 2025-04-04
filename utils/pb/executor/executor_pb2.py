@@ -26,13 +26,13 @@ from shared import order_pb2 as shared_dot_order__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17\x65xecutor/executor.proto\x12\tbookstore\x1a\x12shared/order.proto\x1a\x1bgoogle/protobuf/empty.proto2S\n\x0f\x45xecutorService\x12@\n\x0cReceiveToken\x12\x16.google.protobuf.Empty\x1a\x18.bookstore.ErrorResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17\x65xecutor/executor.proto\x12\tbookstore\x1a\x12shared/order.proto\x1a\x1bgoogle/protobuf/empty.proto2\xce\x01\n\x0f\x45xecutorService\x12@\n\x0cReceiveToken\x12\x16.google.protobuf.Empty\x1a\x18.bookstore.ErrorResponse\x12\x38\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x18.bookstore.ErrorResponse\x12?\n\x0b\x45lectLeader\x12\x16.google.protobuf.Empty\x1a\x18.bookstore.ErrorResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'executor.executor_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_EXECUTORSERVICE']._serialized_start=87
-  _globals['_EXECUTORSERVICE']._serialized_end=170
+  _globals['_EXECUTORSERVICE']._serialized_start=88
+  _globals['_EXECUTORSERVICE']._serialized_end=294
 # @@protoc_insertion_point(module_scope)

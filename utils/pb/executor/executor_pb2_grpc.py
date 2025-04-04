@@ -40,6 +40,16 @@ class ExecutorServiceStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
+        self.Ping = channel.unary_unary(
+                '/bookstore.ExecutorService/Ping',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
+                _registered_method=True)
+        self.ElectLeader = channel.unary_unary(
+                '/bookstore.ExecutorService/ElectLeader',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
+                _registered_method=True)
 
 
 class ExecutorServiceServicer(object):
@@ -51,11 +61,33 @@ class ExecutorServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Ping(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ElectLeader(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ExecutorServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ReceiveToken': grpc.unary_unary_rpc_method_handler(
                     servicer.ReceiveToken,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
+            'ElectLeader': grpc.unary_unary_rpc_method_handler(
+                    servicer.ElectLeader,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
@@ -85,6 +117,60 @@ class ExecutorService(object):
             request,
             target,
             '/bookstore.ExecutorService/ReceiveToken',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Ping(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.ExecutorService/Ping',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ElectLeader(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.ExecutorService/ElectLeader',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,

@@ -10,6 +10,7 @@ service OrderQueueService {
     rpc EnqueueOrder (QueueOrderRequest) returns (ErrorResponse);
     rpc DequeueOrder (google.protobuf.Empty) returns (DequeueOrderResponse);
     rpc CoordinateExecutors (CoordinateRequest) returns (CoordinateResponse);
+    rpc NewElection(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message QueueOrderRequest {

@@ -8,4 +8,6 @@ import "google/protobuf/empty.proto";
 
 service ExecutorService {
     rpc ReceiveToken (google.protobuf.Empty) returns (ErrorResponse);
+    rpc Ping (google.protobuf.Empty) returns (ErrorResponse);
+    rpc ElectLeader(google.protobuf.Empty) returns (ErrorResponse);
 }

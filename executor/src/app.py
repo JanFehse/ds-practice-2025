@@ -26,22 +26,55 @@ import grpc
 class ExecutorService(executor_grpc.ExecutorServiceServicer):
     wait_time = 5
     executors = []
+    lastToken = time.time()
     def __init__(self):
-        myip = socket.gethostbyname(socket.gethostname())
+        self.ElectLeader(Empty(), Empty())
+        threading.Thread(target=self.checkToken, args=[]).start()
+        return
+    
+    def ElectLeader(self, request, context):
         time.sleep(1)
+        myip = socket.gethostbyname(socket.gethostname())
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
             request = order_queue.CoordinateRequest(portnumber=myip)
             response = stub.CoordinateExecutors(request)
         self.executors = list(response.ids)
         self.myip = myip
+        self.lastToken = time.time()
         if self.executors.index(myip) == 0:
             self.pass_token()
+        return Empty()
+
+    def checkToken(self):
+        while time.time() - self.lastToken <= self.wait_time*(len(self.executors) + 1):
+            time.sleep(self.wait_time*(len(self.executors) + 1))
+        #heartbeat your predecessor
+        predecessor = (self.executors.index(self.myip) + len(self.executors) - 1) % len(self.executors)
+        try: 
+            with grpc.insecure_channel(self.executors[predecessor]+":50061") as channel:
+                stub = executor_grpc.ExecutorServiceStub(channel)
+                print("Pinging ", self.executors[predecessor])
+                response = stub.Ping(Empty())
+        except Exception as e:
+                print("error pinging", self.executors[predecessor], " Starting new leader election")
+                with grpc.insecure_channel("order_queue:50055") as channel:
+                    stub = order_queue_grpc.OrderQueueServiceStub(channel)
+                    stub.NewElection(Empty())      
+        self.lastToken = time.time()
+        threading.Thread(target=self.checkToken, args=[]).start()
         return
+    
+    def Ping(self, request, context):
+        print("Pong")
+        response = order.ErrorResponse()
+        response.error = False
+        return response
     
     def ReceiveToken(self, request, context):
         threading.Thread(target=self.pass_token, args=[]).start()
         print("--received token--")
+        self.lastToken = time.time()
         response = order.ErrorResponse(error=False)
         return response
     
@@ -67,10 +100,8 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
                     else:
                         raise Exception('ErrorResponse')
             except Exception as e:
-                print(e)
                 print("error passing token to", self.executors[start])        
                 start = (start + 1) % len(self.executors)
-                time.sleep(10)
         return
         
     def process_order(self, order):
