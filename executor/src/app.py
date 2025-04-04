@@ -24,6 +24,7 @@ import grpc
 
 # Create a class to define the server functions
 class ExecutorService(executor_grpc.ExecutorServiceServicer):
+    wait_time = 5
     executors = []
     def __init__(self):
         myip = socket.gethostbyname(socket.gethostname())
@@ -50,7 +51,7 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
             order_response = stub.DequeueOrder(Empty())
         if not order_response.HasField("order"):
             print("No new order in queue")
-            time.sleep(5)
+            time.sleep(self.wait_time)
         else:
             threading.Thread(target=self.process_order, args=[order_response]).start()
         start = (self.executors.index(self.myip) + 1) % len(self.executors)
