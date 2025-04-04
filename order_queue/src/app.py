@@ -17,13 +17,18 @@ import order_queue.order_queue_pb2_grpc as order_queue_grpc
 
 import grpc
 
+premium_user = {"Fehse", "Eulering", "Beyerle", "Einstein", "Hawking", "Newton", "Curie", "Feynman", "Bohr", "Planck"}
+
 # Create a class to define the server functions
 class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
-    orders = {}
-    executors = []
+    # initialize the class
+    def __init__(self):
+        self.orders = []
+        self.executors = []
+    
     #Initialize into orders
     def EnqueueOrder(self, request, context):
-        self.orders[request.info.id] = request
+        heapq.heappush(self.orders, (self._get_priority(request), request))
         response = order.ErrorResponse()
         response.error = False
         print("---Order Enqueued---")
@@ -31,7 +36,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     
     def DequeueOrder(self, request, context):
         if self.orders:
-            _, deq_order = self.orders.popitem()
+            _, deq_order = heapq.heappop(self.orders)
             print(f"---Order {deq_order.info.id} dequeued---")
             response = order_queue.DequeueOrderResponse(order=deq_order)
         else:
@@ -47,6 +52,12 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         time.sleep(1)
         response = order_queue.CoordinateResponse(ids=self.executors)
         return response
+    
+    def _get_priority(self, order):
+        is_premium = order.info.name in premium_user
+        num_books = order.booksInCart.quantity
+        # negative value for max heap
+        return (-int(is_premium), -num_books, time.time())
 
 
 def serve():
