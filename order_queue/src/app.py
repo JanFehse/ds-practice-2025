@@ -1,6 +1,8 @@
 import sys
 import os
 import time
+import grpc
+import heapq
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
@@ -14,8 +16,6 @@ import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
 import order_queue.order_queue_pb2 as order_queue
 import order_queue.order_queue_pb2_grpc as order_queue_grpc
-
-import grpc
 
 premium_user = {"Fehse", "Eulering", "Beyerle", "Einstein", "Hawking", "Newton", "Curie", "Feynman", "Bohr", "Planck"}
 
@@ -54,8 +54,8 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         return response
     
     def _get_priority(self, order):
-        is_premium = order.info.name in premium_user
-        num_books = order.booksInCart.quantity
+        is_premium = order.name in premium_user
+        num_books = sum(book.quantity for book in order.booksInCart)
         # negative value for max heap
         return (-int(is_premium), -num_books, time.time())
 
