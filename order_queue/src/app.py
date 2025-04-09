@@ -4,6 +4,7 @@ import time
 import grpc
 import heapq
 import copy
+import threading
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from google.protobuf.empty_pb2 import Empty
@@ -66,21 +67,24 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     
     def NewElection(self, request, context):
         print("New Election called")
-        print(self.executors)
         exec_local = copy.deepcopy(self.executors)
         self.executors = []
         print(exec_local)
         for exec in exec_local:
-            #TODO thread this so that it is parrallel
-            try:
-                with grpc.insecure_channel(exec+":50061") as channel:
-                    stub = executor_grpc.ExecutorServiceStub(channel)
-                    print("Elect Leader calling at ", exec)
-                    stub.ElectLeader(Empty())
-            except:
-                print(exec, "died")
+            #Call all old executors in parrallel to start the election
+            threading.Thread(target=self.electionAtExecutor, args=[exec]).start()
         return Empty()
-
+    
+    def electionAtExecutor(self, exec):
+        try:
+            with grpc.insecure_channel(exec+":50061") as channel:
+                stub = executor_grpc.ExecutorServiceStub(channel)
+                print("Elect Leader calling at ", exec)
+                stub.ElectLeader(Empty())
+        except:
+            print(exec, "died")
+        return
+    
 
 def serve():
     # Create a gRPC server

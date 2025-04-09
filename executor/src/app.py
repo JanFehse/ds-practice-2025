@@ -27,13 +27,14 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
     wait_time = 5
     executors = []
     lastToken = time.time()
+
     def __init__(self):
+        time.sleep(1)
         self.ElectLeader(Empty(), Empty())
         threading.Thread(target=self.checkToken, args=[]).start()
         return
     
     def ElectLeader(self, request, context):
-        time.sleep(1)
         myip = socket.gethostbyname(socket.gethostname())
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
