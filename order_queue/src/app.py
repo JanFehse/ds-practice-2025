@@ -69,7 +69,6 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         print("New Election called")
         exec_local = copy.deepcopy(self.executors)
         self.executors = []
-        print(exec_local)
         for exec in exec_local:
             #Call all old executors in parrallel to start the election
             threading.Thread(target=self.electionAtExecutor, args=[exec]).start()
