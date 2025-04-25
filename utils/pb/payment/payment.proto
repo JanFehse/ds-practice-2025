@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bookstore;
+
+import "shared/order.proto";
+import "google/protobuf/empty.proto";
+
+service DatabaseService {
+    rpc Prepare (PrepareRequest) returns (ErrorResponse);
+    rpc Commit (ExecInfo) returns (ErrorResponse);
+    rpc Abort (ExecInfo) returns (ErrorResponse);
+}
+
+message PrepareRequest {
+    string name = 1;
+    CreditCard CreditCard = 2;
+    BillingAddress BillingAddress = 3;
+    int32 price = 4;
+}

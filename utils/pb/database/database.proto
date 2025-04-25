@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package bookstore;
+
+import "shared/order.proto";
+import "google/protobuf/empty.proto";
+
+service DatabaseService {
+    rpc Read (ReadRequest) returns (ReadResponse);
+    rpc Write (WriteRequest) returns (ErrorResponse);
+    rpc Decrement (ChangeAmountRequest) returns (ErrorResponse);
+    rpc Increment (ChangeAmountRequest) returns (ErrorResponse);
+    rpc Prepare (PrepareRequest) returns (ErrorResponse);
+    rpc Commit (ExecInfo) returns (ErrorResponse);
+    rpc Abort (ExecInfo) returns (ErrorResponse);
+}
+
+message ReadRequest {
+    string title = 1;
+}
+
+message ReadResponse {
+    int32 amount = 1;
+}
+
+message WriteRequest {
+    string title = 1;
+    int32 new_stock = 2;
+}
+
+message ChangeAmountRequest{
+    string title = 1;
+    int32 amount = 2;
+}
+
+message PrepareRequest{
+    repeated ChangeAmountRequest books = 1;
+}
