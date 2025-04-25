@@ -60,8 +60,8 @@ def serve():
     payment_grpc.add_PaymentsServiceServicer_to_server(
         PaymentService(), server
     )
-    # Listen on port 50051
-    port = "50053"
+    # Listen on port 50056
+    port = "50056"
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
