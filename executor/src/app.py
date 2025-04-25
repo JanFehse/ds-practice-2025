@@ -19,6 +19,10 @@ import executor.executor_pb2 as executor
 import executor.executor_pb2_grpc as executor_grpc
 import order_queue.order_queue_pb2 as order_queue
 import order_queue.order_queue_pb2_grpc as order_queue_grpc
+import payment.payment_pb2 as payment
+import payment.payment_pb2_grpc as payment_grpc
+import database.database_pb2 as database
+import database.database_pb2_grpc as database_grpc
 
 import grpc
 
@@ -106,9 +110,59 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         return
         
     def process_order(self, order):
-        id = order.order.info.id
-        print("processing order with id: ", id)
-        return
+        order_id = order.order.info.id
+        print("processing order with id: ", order_id)
+        #two phase commit
+        ready_votes = []
+        #TODO calculate price??
+        payment_prepare_request = payment.PrepareRequest(name = order.order.name, 
+                                        CreditCard = order.order.CreditCard,
+                                        BillingAddress=  order.order.BillingAddress,
+                                        price= 10, 
+                                        id= order_id)
+        
+        database_prepare_request = database.PrepareRequest()
+        for book in order.order.booksInCart:
+            change_request = database.ChangeAmountRequest(title = book.title, amount = book.quantity)
+            database_prepare_request.books.append(change_request)
+        
+
+        try:
+            with grpc.insecure_channel("payment_service:50056") as channel:
+                stub = payment_grpc.PaymentServiceStub(channel)
+                payment_response = stub.Prepare(payment_prepare_request)
+                ready_votes.append(not payment_response.error)
+        except Exception:
+            ready_votes.append(False)
+
+        try:
+            with grpc.insecure_channel("database_service:50057") as channel:
+                stub = database_grpc.DatabaseServiceStub(channel)
+                database_response = stub.Prepare(database_prepare_request)
+                ready_votes.append(not database_response.error)
+        except Exception:
+            ready_votes.append(False)
+
+        info = order.ExecInfo(id = order_id, vectorClock = [0,0,0])
+        
+        if all(ready_votes):
+            #TODO handle responses? 
+            with grpc.insecure_channel("payment_service:50056") as channel:
+                stub = payment_grpc.PaymentServiceStub(channel)
+                payment_response = stub.Commit(info)
+            with grpc.insecure_channel("database_service:50057") as channel:
+                stub = database_grpc.DatabaseServiceStub(channel)
+                database_response = stub.Commit(info)
+            print(f"All services Commited for id: {order_id}")
+        else: 
+            with grpc.insecure_channel("payment_service:50056") as channel:
+                stub = payment_grpc.PaymentServiceStub(channel)
+                payment_response = stub.Abort(info)
+            with grpc.insecure_channel("database_service:50057") as channel:
+                stub = database_grpc.DatabaseServiceStub(channel)
+                database_response = stub.Abort(info)
+            print(f"Transaction with id {order_id} Aborted")
+
 
 def serve():
     # Create a gRPC server
