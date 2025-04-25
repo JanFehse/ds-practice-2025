@@ -36,7 +36,9 @@ class ChangeAmountRequest(_message.Message):
     def __init__(self, title: _Optional[str] = ..., amount: _Optional[int] = ...) -> None: ...
 
 class PrepareRequest(_message.Message):
-    __slots__ = ("books",)
+    __slots__ = ("books", "id")
     BOOKS_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
     books: _containers.RepeatedCompositeFieldContainer[ChangeAmountRequest]
-    def __init__(self, books: _Optional[_Iterable[_Union[ChangeAmountRequest, _Mapping]]] = ...) -> None: ...
+    id: int
+    def __init__(self, books: _Optional[_Iterable[_Union[ChangeAmountRequest, _Mapping]]] = ..., id: _Optional[int] = ...) -> None: ...

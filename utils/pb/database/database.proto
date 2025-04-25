@@ -35,4 +35,5 @@ message ChangeAmountRequest{
 
 message PrepareRequest{
     repeated ChangeAmountRequest books = 1;
+    int32 id = 2;
 }

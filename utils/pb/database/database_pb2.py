@@ -26,7 +26,7 @@ from shared import order_pb2 as shared_dot_order__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17\x64\x61tabase/database.proto\x12\tbookstore\x1a\x12shared/order.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1c\n\x0bReadRequest\x12\r\n\x05title\x18\x01 \x01(\t\"\x1e\n\x0cReadResponse\x12\x0e\n\x06\x61mount\x18\x01 \x01(\x05\"0\n\x0cWriteRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x11\n\tnew_stock\x18\x02 \x01(\x05\"4\n\x13\x43hangeAmountRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x05\"?\n\x0ePrepareRequest\x12-\n\x05\x62ooks\x18\x01 \x03(\x0b\x32\x1e.bookstore.ChangeAmountRequest2\xc5\x03\n\x0f\x44\x61tabaseService\x12\x37\n\x04Read\x12\x16.bookstore.ReadRequest\x1a\x17.bookstore.ReadResponse\x12:\n\x05Write\x12\x17.bookstore.WriteRequest\x1a\x18.bookstore.ErrorResponse\x12\x45\n\tDecrement\x12\x1e.bookstore.ChangeAmountRequest\x1a\x18.bookstore.ErrorResponse\x12\x45\n\tIncrement\x12\x1e.bookstore.ChangeAmountRequest\x1a\x18.bookstore.ErrorResponse\x12>\n\x07Prepare\x12\x19.bookstore.PrepareRequest\x1a\x18.bookstore.ErrorResponse\x12\x37\n\x06\x43ommit\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponse\x12\x36\n\x05\x41\x62ort\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17\x64\x61tabase/database.proto\x12\tbookstore\x1a\x12shared/order.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1c\n\x0bReadRequest\x12\r\n\x05title\x18\x01 \x01(\t\"\x1e\n\x0cReadResponse\x12\x0e\n\x06\x61mount\x18\x01 \x01(\x05\"0\n\x0cWriteRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x11\n\tnew_stock\x18\x02 \x01(\x05\"4\n\x13\x43hangeAmountRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x05\"K\n\x0ePrepareRequest\x12-\n\x05\x62ooks\x18\x01 \x03(\x0b\x32\x1e.bookstore.ChangeAmountRequest\x12\n\n\x02id\x18\x02 \x01(\x05\x32\xc5\x03\n\x0f\x44\x61tabaseService\x12\x37\n\x04Read\x12\x16.bookstore.ReadRequest\x1a\x17.bookstore.ReadResponse\x12:\n\x05Write\x12\x17.bookstore.WriteRequest\x1a\x18.bookstore.ErrorResponse\x12\x45\n\tDecrement\x12\x1e.bookstore.ChangeAmountRequest\x1a\x18.bookstore.ErrorResponse\x12\x45\n\tIncrement\x12\x1e.bookstore.ChangeAmountRequest\x1a\x18.bookstore.ErrorResponse\x12>\n\x07Prepare\x12\x19.bookstore.PrepareRequest\x1a\x18.bookstore.ErrorResponse\x12\x37\n\x06\x43ommit\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponse\x12\x36\n\x05\x41\x62ort\x12\x13.bookstore.ExecInfo\x1a\x18.bookstore.ErrorResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -42,7 +42,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CHANGEAMOUNTREQUEST']._serialized_start=199
   _globals['_CHANGEAMOUNTREQUEST']._serialized_end=251
   _globals['_PREPAREREQUEST']._serialized_start=253
-  _globals['_PREPAREREQUEST']._serialized_end=316
-  _globals['_DATABASESERVICE']._serialized_start=319
-  _globals['_DATABASESERVICE']._serialized_end=772
+  _globals['_PREPAREREQUEST']._serialized_end=328
+  _globals['_DATABASESERVICE']._serialized_start=331
+  _globals['_DATABASESERVICE']._serialized_end=784
 # @@protoc_insertion_point(module_scope)
