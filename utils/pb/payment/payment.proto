@@ -16,4 +16,5 @@ message PrepareRequest {
     CreditCard CreditCard = 2;
     BillingAddress BillingAddress = 3;
     int32 price = 4;
+    int32 id = 5;
 }
