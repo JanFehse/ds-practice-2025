@@ -123,15 +123,20 @@ class PrimaryDatabaseService(DatabaseService):
         return response
 
 
-def serve():
+def serve(isPrimary):
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add HelloService
-    database_grpc.add_DatabaseServiceServicer_to_server(
-        DatabaseService(), server
-    )
+    if isPrimary:
+        database_grpc.add_DatabaseServiceServicer_to_server(
+            PrimaryDatabaseService(), server
+        )
+    else:
+        database_grpc.add_DatabaseServiceServicer_to_server(
+            DatabaseService(), server
+        )
     # Listen on port 50051
-    port = "50055"
+    port = "50057"
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
