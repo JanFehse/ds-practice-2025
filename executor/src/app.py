@@ -121,12 +121,12 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
                                         price= 10, 
                                         id= order_id)
         
-        database_prepare_request = database.PrepareRequestDatabase(id = order_id)
+        changeamountrequests = []
         for book in existingOrder.order.booksInCart:
             change_request = database.ChangeAmountRequest(title = book.title, amount = book.quantity)
-            database_prepare_request.books.append(change_request)
+            changeamountrequests.append(change_request)
 
-        print(database_prepare_request)
+        database_prepare_request = database.PrepareRequestDatabase(id = order_id, books = changeamountrequests)
 
         try:
             with grpc.insecure_channel("payment_service:50056") as channel:

@@ -23,8 +23,14 @@ import database.database_pb2_grpc as database_grpc
 # Create a class to define the server functions
 class DatabaseService(database_grpc.DatabaseServiceServicer):
     # initialize the class
+
+    prepared = [{"title": "Book A", "amount": 10}, {"title": "Book B", "amount": 10}]
+
     def __init__(self):
         self.store = {}
+        for book in self.prepared:
+            self.store[book["title"]] = book["amount"]
+        self.call_primary()
     
     def call_primary(self):
         myip = socket.gethostbyname(socket.gethostname())
@@ -42,6 +48,7 @@ class DatabaseService(database_grpc.DatabaseServiceServicer):
 
     def Write(self, request, context):
         self.store[request.title] = request.new_stock
+        print(f"Updated {request.title} to {request.new_stock}")
         return order.ErrorResponse(error=False)
 
     def Decrement(self, request, context):
@@ -60,11 +67,15 @@ class PrimaryDatabaseService(DatabaseService):
     def __init__(self, am_primary):
         super().__init__()
         self.locked_books = {}
+        for title in self.store:
+            self.locked_books[title] = threading.Lock()
         self.queuedCommits = {}
         if(not am_primary):
-            self.call_primary()
             return
         print("I am the Primary")
+        return
+
+    def call_primary(self):
         return
 
     def PingPrimary(self, request, context):
@@ -74,6 +85,7 @@ class PrimaryDatabaseService(DatabaseService):
 
     def Write(self, request, context):
         self.store[request.title] = request.new_stock
+        print(f"Updated {request.title} to {request.new_stock}")
         self.updateBackups(request.title)
         return order.ErrorResponse(error=False)
         
@@ -93,7 +105,7 @@ class PrimaryDatabaseService(DatabaseService):
         for backup in self.follower:
             try:
                 with grpc.insecure_channel(backup+":50057") as channel:
-                    stub = database.DataBaseServiceStub(channel)
+                    stub = database_grpc.DatabaseServiceStub(channel)
                     request = database.WriteRequest(title=book, new_stock=self.store[book])
                     pass_response = stub.Write(request)
                     if not pass_response.error:
@@ -101,6 +113,7 @@ class PrimaryDatabaseService(DatabaseService):
                     else:
                         raise Exception('ErrorResponse')
             except Exception as e:
+                print(e)
                 print("Error updating ", backup)        
         return
     
@@ -110,15 +123,15 @@ class PrimaryDatabaseService(DatabaseService):
         for book in request.books:
             self.locked_books[book.title].acquire()
             if self.store[book.title] < book.amount:
-                abortRequest = order.ExecInfo(id=request.id, vectorClock=[0,0,0])
-                self.Abort(abortRequest, Empty())
+                # abortRequest = order.ExecInfo(id=request.id, vectorClock=[0,0,0])
+                # self.Abort(abortRequest, Empty())
                 return order.ErrorResponse(error=True)
         print(f"Prepered DB for OrderID: {request.id}")
         return order.ErrorResponse(error=False)
     
-    def Commit(self,request,context):
+    def Commit(self,request, context):
         for book in self.queuedCommits[request.id]:
-            self.Decrement(book)
+            self.Decrement(book, Empty())
             self.locked_books[book.title].release()
         print(f"Commited to DB for OrderID: {request.id}")
         return order.ErrorResponse(error=False)
@@ -136,9 +149,14 @@ def serve(isPrimary):
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add HelloService
-    database_grpc.add_DatabaseServiceServicer_to_server(
-        PrimaryDatabaseService(isPrimary), server
-    )
+    if(isPrimary):
+        database_grpc.add_DatabaseServiceServicer_to_server(
+            PrimaryDatabaseService(isPrimary), server
+        )
+    else:
+        database_grpc.add_DatabaseServiceServicer_to_server(
+            DatabaseService(), server
+        )
     # Listen on port 50051
     port = "50057"
     server.add_insecure_port("[::]:" + port)
