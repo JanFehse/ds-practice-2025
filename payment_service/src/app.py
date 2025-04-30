@@ -33,6 +33,7 @@ class PaymentService(payment_grpc.PaymentServiceServicer):
         self.prepared = True
         response = order.ErrorResponse()
         response.error = False
+        print(f"Order prepared for {request.id}")
         return response
     
     def Commit(self,request,context):

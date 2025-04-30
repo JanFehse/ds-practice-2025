@@ -158,7 +158,7 @@ services:
       - ./utils:/app/utils
       - ./database/src:/app/database/src
     
-  payment-service:
+  payment_service:
     build:
       context: ./
       dockerfile: ./payment_service/Dockerfile

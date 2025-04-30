@@ -65,8 +65,6 @@ class PrimaryDatabaseService(DatabaseService):
             self.call_primary()
             return
         print("I am the Primary")
-        time.sleep(5)
-        print()
         return
 
     def PingPrimary(self, request, context):
@@ -107,6 +105,7 @@ class PrimaryDatabaseService(DatabaseService):
         return
     
     def Prepare(self,request,context):
+        print("Start prepare")
         self.queuedCommits[request.id] = request.books
         for book in request.books:
             self.locked_books[book.title].acquire()
@@ -125,7 +124,7 @@ class PrimaryDatabaseService(DatabaseService):
         return order.ErrorResponse(error=False)
     
     def Abort(self,request,context):
-        for book in self.queuedCommits[id]:
+        for book in self.queuedCommits[request.id]:
             self.locked_books[book.title].release()
         print(f"Aborted to DB for OrderID: {request.id}")
         response = order.ErrorResponse()
