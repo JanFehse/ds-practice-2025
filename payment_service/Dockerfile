@@ -12,4 +12,4 @@ COPY ./suggestions/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set the command to run the application
-CMD python utils/other/hotreload.py "suggestions/src/app.py"
+CMD python utils/other/hotreload.py "payment_service/src/app.py"

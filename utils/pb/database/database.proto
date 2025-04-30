@@ -10,9 +10,10 @@ service DatabaseService {
     rpc Write (WriteRequest) returns (ErrorResponse);
     rpc Decrement (ChangeAmountRequest) returns (ErrorResponse);
     rpc Increment (ChangeAmountRequest) returns (ErrorResponse);
-    rpc Prepare (PrepareRequest) returns (ErrorResponse);
+    rpc Prepare (PrepareRequestDatabase) returns (ErrorResponse);
     rpc Commit (ExecInfo) returns (ErrorResponse);
     rpc Abort (ExecInfo) returns (ErrorResponse);
+    rpc PingPrimary (PingPrimaryRequest) returns (ErrorResponse);
 }
 
 message ReadRequest {
@@ -33,7 +34,11 @@ message ChangeAmountRequest{
     int32 amount = 2;
 }
 
-message PrepareRequest{
+message PrepareRequestDatabase{
     repeated ChangeAmountRequest books = 1;
     int32 id = 2;
+}
+
+message PingPrimaryRequest {
+    string portnumber = 1;
 }

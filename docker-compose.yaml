@@ -139,6 +139,34 @@ services:
     environment:
       - PYTHONUNBUFFERED=TRUE
       - PYTHONFILE=/app/database/src/app.py
+      - IS_PRIMARY=true
     volumes:
       - ./utils:/app/utils
       - ./database/src:/app/database/src
+  
+  database:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    deploy:
+      replicas: 2
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+      - IS_PRIMARY=false
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
+    
+  payment-service:
+    build:
+      context: ./
+      dockerfile: ./payment_service/Dockerfile
+    ports:
+      - 50056:50056
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/payment_service/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./payment_service/src:/app/payment_service/src

@@ -26,7 +26,7 @@ if _version_not_supported:
     )
 
 
-class DatabaseServiceStub(object):
+class PaymentServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -36,23 +36,23 @@ class DatabaseServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Prepare = channel.unary_unary(
-                '/bookstore.DatabaseService/Prepare',
-                request_serializer=payment_dot_payment__pb2.PrepareRequest.SerializeToString,
+                '/bookstore.PaymentService/Prepare',
+                request_serializer=payment_dot_payment__pb2.PrepareRequestPayment.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
         self.Commit = channel.unary_unary(
-                '/bookstore.DatabaseService/Commit',
+                '/bookstore.PaymentService/Commit',
                 request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
         self.Abort = channel.unary_unary(
-                '/bookstore.DatabaseService/Abort',
+                '/bookstore.PaymentService/Abort',
                 request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
 
 
-class DatabaseServiceServicer(object):
+class PaymentServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Prepare(self, request, context):
@@ -74,11 +74,11 @@ class DatabaseServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_DatabaseServiceServicer_to_server(servicer, server):
+def add_PaymentServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Prepare': grpc.unary_unary_rpc_method_handler(
                     servicer.Prepare,
-                    request_deserializer=payment_dot_payment__pb2.PrepareRequest.FromString,
+                    request_deserializer=payment_dot_payment__pb2.PrepareRequestPayment.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
             'Commit': grpc.unary_unary_rpc_method_handler(
@@ -93,13 +93,13 @@ def add_DatabaseServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'bookstore.DatabaseService', rpc_method_handlers)
+            'bookstore.PaymentService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('bookstore.DatabaseService', rpc_method_handlers)
+    server.add_registered_method_handlers('bookstore.PaymentService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class DatabaseService(object):
+class PaymentService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -116,8 +116,8 @@ class DatabaseService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bookstore.DatabaseService/Prepare',
-            payment_dot_payment__pb2.PrepareRequest.SerializeToString,
+            '/bookstore.PaymentService/Prepare',
+            payment_dot_payment__pb2.PrepareRequestPayment.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,
             channel_credentials,
@@ -143,7 +143,7 @@ class DatabaseService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bookstore.DatabaseService/Commit',
+            '/bookstore.PaymentService/Commit',
             shared_dot_order__pb2.ExecInfo.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,
@@ -170,7 +170,7 @@ class DatabaseService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bookstore.DatabaseService/Abort',
+            '/bookstore.PaymentService/Abort',
             shared_dot_order__pb2.ExecInfo.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,

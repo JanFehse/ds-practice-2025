@@ -2,9 +2,8 @@ import sys
 import os
 import time
 import grpc
-import heapq
-import copy
 import threading
+import socket
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from google.protobuf.empty_pb2 import Empty
@@ -17,8 +16,8 @@ grpc_path = os.path.abspath(os.path.join(FILE, "../../../utils/pb"))
 sys.path.insert(0, grpc_path)
 import shared.order_pb2 as order
 import shared.order_pb2_grpc as order_grpc
-import database.databse_pb2 as database
-import database.order_pb2_grpc as database_grpc
+import database.database_pb2 as database
+import database.database_pb2_grpc as database_grpc
 
 
 # Create a class to define the server functions
@@ -28,8 +27,13 @@ class DatabaseService(database_grpc.DatabaseServiceServicer):
         self.store = {}
     
     def call_primary(self):
-        #TODO
+        myip = socket.gethostbyname(socket.gethostname())
+        time.sleep(1)
         print("calling primary")
+        with grpc.insecure_channel("primarydatabase:50057") as channel:
+            stub = database_grpc.DatabaseServiceStub(channel)
+            request = database.PingPrimaryRequest(portnumber=myip)
+            response = stub.PingPrimary(request)
         return
     
     def Read(self, request, context):
@@ -51,7 +55,7 @@ class DatabaseService(database_grpc.DatabaseServiceServicer):
 
 class PrimaryDatabaseService(DatabaseService):
     
-    backups = []
+    follower = []
     
     def __init__(self, am_primary):
         super().__init__()
@@ -60,8 +64,15 @@ class PrimaryDatabaseService(DatabaseService):
         if(not am_primary):
             self.call_primary()
             return
+        print("I am the Primary")
         time.sleep(5)
+        print()
         return
+
+    def PingPrimary(self, request, context):
+        idFollower = request.portnumber
+        self.follower.append(idFollower)
+        return order.ErrorResponse(error=False)
 
     def Write(self, request, context):
         self.store[request.title] = request.new_stock
@@ -81,10 +92,9 @@ class PrimaryDatabaseService(DatabaseService):
         return order.ErrorResponse(error=False)
 
     def updateBackups(self, book):
-        for backup in self.backups:
+        for backup in self.follower:
             try:
-                #TODO define which port is used
-                with grpc.insecure_channel(backup+":") as channel:
+                with grpc.insecure_channel(backup+":50057") as channel:
                     stub = database.DataBaseServiceStub(channel)
                     request = database.WriteRequest(title=book, new_stock=self.store[book])
                     pass_response = stub.Write(request)
@@ -127,23 +137,19 @@ def serve(isPrimary):
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add HelloService
-    if isPrimary:
-        database_grpc.add_DatabaseServiceServicer_to_server(
-            PrimaryDatabaseService(), server
-        )
-    else:
-        database_grpc.add_DatabaseServiceServicer_to_server(
-            DatabaseService(), server
-        )
+    database_grpc.add_DatabaseServiceServicer_to_server(
+        PrimaryDatabaseService(isPrimary), server
+    )
     # Listen on port 50051
     port = "50057"
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
-    print("Order Queue server started. Listening on port 50055.")
+    print("Database server started. Listening on port 50057.")
     # Keep thread alive
     server.wait_for_termination()
 
 
 if __name__ == "__main__":
-    serve()
+    isPrimary = os.getenv("IS_PRIMARY", "false").lower() == "true"
+    serve(isPrimary)

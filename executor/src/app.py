@@ -115,13 +115,13 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         #two phase commit
         ready_votes = []
         #TODO calculate price??
-        payment_prepare_request = payment.PrepareRequest(name = order.order.name, 
+        payment_prepare_request = payment.PrepareRequestPayment(name = order.order.name, 
                                         CreditCard = order.order.CreditCard,
                                         BillingAddress=  order.order.BillingAddress,
                                         price= 10, 
                                         id= order_id)
         
-        database_prepare_request = database.PrepareRequest()
+        database_prepare_request = database.PrepareRequestDatabase()
         for book in order.order.booksInCart:
             change_request = database.ChangeAmountRequest(title = book.title, amount = book.quantity)
             database_prepare_request.books.append(change_request)

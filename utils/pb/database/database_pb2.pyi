@@ -35,10 +35,16 @@ class ChangeAmountRequest(_message.Message):
     amount: int
     def __init__(self, title: _Optional[str] = ..., amount: _Optional[int] = ...) -> None: ...
 
-class PrepareRequest(_message.Message):
+class PrepareRequestDatabase(_message.Message):
     __slots__ = ("books", "id")
     BOOKS_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     books: _containers.RepeatedCompositeFieldContainer[ChangeAmountRequest]
     id: int
     def __init__(self, books: _Optional[_Iterable[_Union[ChangeAmountRequest, _Mapping]]] = ..., id: _Optional[int] = ...) -> None: ...
+
+class PingPrimaryRequest(_message.Message):
+    __slots__ = ("portnumber",)
+    PORTNUMBER_FIELD_NUMBER: _ClassVar[int]
+    portnumber: str
+    def __init__(self, portnumber: _Optional[str] = ...) -> None: ...

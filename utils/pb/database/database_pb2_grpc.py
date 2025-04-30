@@ -57,7 +57,7 @@ class DatabaseServiceStub(object):
                 _registered_method=True)
         self.Prepare = channel.unary_unary(
                 '/bookstore.DatabaseService/Prepare',
-                request_serializer=database_dot_database__pb2.PrepareRequest.SerializeToString,
+                request_serializer=database_dot_database__pb2.PrepareRequestDatabase.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
         self.Commit = channel.unary_unary(
@@ -68,6 +68,11 @@ class DatabaseServiceStub(object):
         self.Abort = channel.unary_unary(
                 '/bookstore.DatabaseService/Abort',
                 request_serializer=shared_dot_order__pb2.ExecInfo.SerializeToString,
+                response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
+                _registered_method=True)
+        self.PingPrimary = channel.unary_unary(
+                '/bookstore.DatabaseService/PingPrimary',
+                request_serializer=database_dot_database__pb2.PingPrimaryRequest.SerializeToString,
                 response_deserializer=shared_dot_order__pb2.ErrorResponse.FromString,
                 _registered_method=True)
 
@@ -117,6 +122,12 @@ class DatabaseServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def PingPrimary(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DatabaseServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -142,7 +153,7 @@ def add_DatabaseServiceServicer_to_server(servicer, server):
             ),
             'Prepare': grpc.unary_unary_rpc_method_handler(
                     servicer.Prepare,
-                    request_deserializer=database_dot_database__pb2.PrepareRequest.FromString,
+                    request_deserializer=database_dot_database__pb2.PrepareRequestDatabase.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
             'Commit': grpc.unary_unary_rpc_method_handler(
@@ -153,6 +164,11 @@ def add_DatabaseServiceServicer_to_server(servicer, server):
             'Abort': grpc.unary_unary_rpc_method_handler(
                     servicer.Abort,
                     request_deserializer=shared_dot_order__pb2.ExecInfo.FromString,
+                    response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
+            ),
+            'PingPrimary': grpc.unary_unary_rpc_method_handler(
+                    servicer.PingPrimary,
+                    request_deserializer=database_dot_database__pb2.PingPrimaryRequest.FromString,
                     response_serializer=shared_dot_order__pb2.ErrorResponse.SerializeToString,
             ),
     }
@@ -289,7 +305,7 @@ class DatabaseService(object):
             request,
             target,
             '/bookstore.DatabaseService/Prepare',
-            database_dot_database__pb2.PrepareRequest.SerializeToString,
+            database_dot_database__pb2.PrepareRequestDatabase.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,
             channel_credentials,
@@ -344,6 +360,33 @@ class DatabaseService(object):
             target,
             '/bookstore.DatabaseService/Abort',
             shared_dot_order__pb2.ExecInfo.SerializeToString,
+            shared_dot_order__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def PingPrimary(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bookstore.DatabaseService/PingPrimary',
+            database_dot_database__pb2.PingPrimaryRequest.SerializeToString,
             shared_dot_order__pb2.ErrorResponse.FromString,
             options,
             channel_credentials,

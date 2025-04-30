@@ -21,7 +21,7 @@ from concurrent import futures
 
 # Create a class to define the server functions, derived from
 # fraud_detection_pb2_grpc.HelloServiceServicer
-class PaymentService(payment_grpc.PaymentsServiceServicer):
+class PaymentService(payment_grpc.PaymentServiceServicer):
     prepared = False
 
     def __init__(self):
@@ -57,7 +57,7 @@ def serve():
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add PaymentService
-    payment_grpc.add_PaymentsServiceServicer_to_server(
+    payment_grpc.add_PaymentServiceServicer_to_server(
         PaymentService(), server
     )
     # Listen on port 50056
