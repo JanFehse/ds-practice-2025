@@ -121,8 +121,8 @@ services:
     build:
       context: ./
       dockerfile: ./executor/Dockerfile
-    ports:
-      - 50057:50057
+    deploy:
+      replicas: 3
     environment:
       - PYTHONUNBUFFERED=TRUE
       - PYTHONFILE=/app/executor/src/app.py
@@ -134,8 +134,8 @@ services:
     build:
       context: ./
       dockerfile: ./database/Dockerfile
-    deploy:
-      replicas: 3
+    ports:
+      - 50057:50057
     environment:
       - PYTHONUNBUFFERED=TRUE
       - PYTHONFILE=/app/database/src/app.py
