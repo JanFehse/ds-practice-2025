@@ -123,8 +123,6 @@ class PrimaryDatabaseService(DatabaseService):
         for book in request.books:
             self.locked_books[book.title].acquire()
             if self.store[book.title] < book.amount:
-                # abortRequest = order.ExecInfo(id=request.id, vectorClock=[0,0,0])
-                # self.Abort(abortRequest, Empty())
                 return order.ErrorResponse(error=True)
         print(f"Prepered DB for OrderID: {request.id}")
         return order.ErrorResponse(error=False)

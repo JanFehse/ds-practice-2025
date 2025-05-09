@@ -149,7 +149,6 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         info = order.ExecInfo(id = order_id, vectorClock = [0,0,0])
         
         if all(ready_votes):
-            #TODO handle responses? 
             with grpc.insecure_channel("payment_service:50056") as channel:
                 stub = payment_grpc.PaymentServiceStub(channel)
                 payment_response = stub.Commit(info)
