@@ -4,6 +4,18 @@ import random
 import sys
 import os
 
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -153,7 +165,8 @@ def checkout():
     Responds with a JSON object containing the order ID, status, and suggested books.
     """
     # Get request object data to json
-    print("-- checkout called --")
+    with tracer.start_as_current_span("span-name") as span:
+        print("-- checkout called --")
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
@@ -256,4 +269,22 @@ if __name__ == "__main__":
     # Run the app in debug mode to enable hot reloading.
     # This is useful for development.
     # The default port is 5000.
+
+    resource = Resource.create(attributes={
+        SERVICE_NAME: "orchestrator"
+    })
+
+    tracerProvider = TracerProvider(resource=resource)
+    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="observability:4317", insecure=True))
+    tracerProvider.add_span_processor(processor)
+    trace.set_tracer_provider(tracerProvider)
+
+    reader = PeriodicExportingMetricReader(
+        OTLPMetricExporter(endpoint="localhost:3000")
+    )
+    meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+    metrics.set_meter_provider(meterProvider)
+
+    tracer = trace.get_tracer("orchestrator.tracer")
+
     app.run(host="0.0.0.0")
