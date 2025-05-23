@@ -123,6 +123,7 @@ class PrimaryDatabaseService(DatabaseService):
         for book in request.books:
             self.locked_books[book.title].acquire()
             if self.store[book.title] < book.amount:
+                print(f"Not Prepered DB for OrderID: {request.id}, {book.title} amount to small")
                 return order.ErrorResponse(error=True)
         print(f"Prepered DB for OrderID: {request.id}")
         return order.ErrorResponse(error=False)
@@ -136,7 +137,8 @@ class PrimaryDatabaseService(DatabaseService):
     
     def Abort(self,request,context):
         for book in self.queuedCommits[request.id]:
-            self.locked_books[book.title].release()
+            if(self.locked_books[book.title].locked()):
+                self.locked_books[book.title].release()
         print(f"Aborted to DB for OrderID: {request.id}")
         response = order.ErrorResponse()
         response.error = True
