@@ -49,7 +49,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
             error = order.ErrorResponse()
             error.error = True
             response = order_queue.DequeueOrderResponse(error=error)
-            print("---No order or dequeueing available---")
+            #print("---No order or dequeueing available---")
         return response
     
     def CoordinateExecutors(self, request, context):

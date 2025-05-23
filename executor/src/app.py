@@ -78,7 +78,7 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
     
     def ReceiveToken(self, request, context):
         threading.Thread(target=self.pass_token, args=[]).start()
-        print("--received token--")
+        #print("--received token--")
         self.lastToken = time.time()
         response = order.ErrorResponse(error=False)
         return response
@@ -88,7 +88,7 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
             order_response = stub.DequeueOrder(Empty())
         if not order_response.HasField("order"):
-            print("No new order in queue")
+            #print("No new order in queue")
             time.sleep(self.wait_time)
         else:
             threading.Thread(target=self.process_order, args=[order_response]).start()
@@ -98,7 +98,7 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
             try: 
                 with grpc.insecure_channel(self.executors[start]+":50061") as channel:
                     stub = executor_grpc.ExecutorServiceStub(channel)
-                    print("Passing Token to", self.executors[start])
+                    #print("Passing Token to", self.executors[start])
                     pass_response = stub.ReceiveToken(Empty())
                     if not pass_response.error:
                         had_error = False
