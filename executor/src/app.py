@@ -7,6 +7,26 @@ from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from google.protobuf.empty_pb2 import Empty
 
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
+from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+resource = Resource.create(attributes={
+        SERVICE_NAME: "executor"
+    })
+
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint="observability:4317", insecure=True)
+)
+meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(meterProvider)
+
+meter = metrics.get_meter("executor.meter")
+
+
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -31,6 +51,7 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
     wait_time = 5
     executors = []
     lastToken = time.time()
+    myip = socket.gethostbyname(socket.gethostname())
 
     def __init__(self):
         time.sleep(1)
@@ -39,15 +60,14 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         return
     
     def ElectLeader(self, request, context):
-        myip = socket.gethostbyname(socket.gethostname())
+        #myip = socket.gethostbyname(socket.gethostname())
         with grpc.insecure_channel("order_queue:50055") as channel:
             stub = order_queue_grpc.OrderQueueServiceStub(channel)
-            request = order_queue.CoordinateRequest(portnumber=myip)
+            request = order_queue.CoordinateRequest(portnumber=self.myip)
             response = stub.CoordinateExecutors(request)
         self.executors = list(response.ids)
-        self.myip = myip
         self.lastToken = time.time()
-        if self.executors.index(myip) == 0:
+        if self.executors.index(self.myip) == 0:
             self.pass_token()
         return Empty()
 
@@ -76,10 +96,15 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         response.error = False
         return response
     
+
+    receive_token_counter = meter.create_counter(
+    "receivedtoken.counter", unit="1", description="Counts the amount of times token is received"
+    )
     def ReceiveToken(self, request, context):
         threading.Thread(target=self.pass_token, args=[]).start()
         #print("--received token--")
         self.lastToken = time.time()
+        self.receive_token_counter.add(1, {"ip": self.myip})
         response = order.ErrorResponse(error=False)
         return response
     

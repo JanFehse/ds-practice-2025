@@ -16,6 +16,27 @@ from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExp
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 
+
+
+resource = Resource.create(attributes={
+        SERVICE_NAME: "orchestrator"
+    })
+
+tracerProvider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="observability:4317", insecure=True))
+tracerProvider.add_span_processor(processor)
+trace.set_tracer_provider(tracerProvider)
+
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint="observability:4317", insecure=True)
+)
+meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(meterProvider)
+
+tracer = trace.get_tracer("orchestrator.tracer")
+
+meter = metrics.get_meter("orchestrator.meter")
+
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -160,13 +181,14 @@ global_id = 100000
 id_lock = threading.Lock()
 
 @app.route("/checkout", methods=["POST"])
+@tracer.start_as_current_span("checkout")
 def checkout():
     """
     Responds with a JSON object containing the order ID, status, and suggested books.
     """
     # Get request object data to json
-    with tracer.start_as_current_span("span-name") as span:
-        print("-- checkout called --")
+    
+    print("-- checkout called --")
     request_data = json.loads(request.data)
     # Print request object data
     print("Request Data:", request_data.get("items"))
@@ -253,6 +275,10 @@ def checkout():
 
     return order_status_response
 
+
+callback_counter = meter.create_counter(
+    "callback.counter", unit="1", description="Counts the amount of times callback is called"
+)
 @app.route('/callback', methods=['POST'])
 def callback():
     """Receives responses from microservices."""
@@ -260,6 +286,8 @@ def callback():
     request_id = response_data.get("id")
     responses[request_id] = response_data
     response_locks[request_id].set()  # Notify waiting thread
+
+    callback_counter.add(1, {"callback.type": response_data["status"]})
         
 
     return jsonify({"status": "received"})
@@ -269,22 +297,5 @@ if __name__ == "__main__":
     # Run the app in debug mode to enable hot reloading.
     # This is useful for development.
     # The default port is 5000.
-
-    resource = Resource.create(attributes={
-        SERVICE_NAME: "orchestrator"
-    })
-
-    tracerProvider = TracerProvider(resource=resource)
-    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="observability:4317", insecure=True))
-    tracerProvider.add_span_processor(processor)
-    trace.set_tracer_provider(tracerProvider)
-
-    reader = PeriodicExportingMetricReader(
-        OTLPMetricExporter(endpoint="localhost:3000")
-    )
-    meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
-    metrics.set_meter_provider(meterProvider)
-
-    tracer = trace.get_tracer("orchestrator.tracer")
 
     app.run(host="0.0.0.0")
