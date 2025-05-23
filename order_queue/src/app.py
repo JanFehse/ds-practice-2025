@@ -9,6 +9,26 @@ from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from google.protobuf.empty_pb2 import Empty
 
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
+from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+resource = Resource.create(attributes={
+        SERVICE_NAME: "order_queue"
+    })
+
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint="observability:4317", insecure=True)
+)
+meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(meterProvider)
+
+meter = metrics.get_meter("order_queue.meter")
+
+
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -33,11 +53,15 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         self.executors = []
     
     #Initialize into orders
+    queue_length_counter = meter.create_up_down_counter(
+    "queue.length.counter", unit="1", description="Counts the length of the queue"
+    )
     def EnqueueOrder(self, request, context):
         heapq.heappush(self.orders, (self._get_priority(request), request))
         response = order.ErrorResponse()
         response.error = False
         print("---Order Enqueued---")
+        self.queue_length_counter.add(1)
         return response
     
     def DequeueOrder(self, request, context):
@@ -45,6 +69,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
             _, deq_order = heapq.heappop(self.orders)
             print(f"---Order {deq_order.info.id} dequeued---")
             response = order_queue.DequeueOrderResponse(order=deq_order)
+            self.queue_length_counter.add(-1)
         else:
             error = order.ErrorResponse()
             error.error = True
