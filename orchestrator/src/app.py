@@ -216,7 +216,7 @@ def checkout():
             quantity=item.get("quantity")
         ))
         total_books += int(item.get("quantity"))
-
+    print(total_books)
     book_amount.record(total_books)
 
     
