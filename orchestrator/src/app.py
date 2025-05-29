@@ -179,6 +179,9 @@ responses = {}
 global_id = 100000
 id_lock = threading.Lock()
 
+book_amount = meter.create_histogram(
+    name="book.amount.order.orchestrator",
+    description="measures the amount of books in a order")
 @app.route("/checkout", methods=["POST"])
 @tracer.start_as_current_span("checkout")
 def checkout():
@@ -206,11 +209,16 @@ def checkout():
     )
     
     Ordered_Books = []
+    total_books = 0
     for item in request_data.get("items"):
         Ordered_Books.append(order_queue.OrderedBook(
             title=item.get("name"),
             quantity=item.get("quantity")
         ))
+        total_books += int(item.get("quantity"))
+
+    book_amount.record(total_books)
+
     
     # Spawn new thread for each microservice
     # In each thread, call the microservie and get the response

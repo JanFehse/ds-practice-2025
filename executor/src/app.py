@@ -154,7 +154,10 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
                 print("error passing token to", self.executors[start])        
                 start = (start + 1) % len(self.executors)
         return
-        
+    
+    book_amount = meter.create_histogram(
+    name="book.amount.order",
+    description="measures the amount of books in a valid order")
     def process_order(self, existingOrder):
         order_id = existingOrder.order.info.id
         print("processing order with id: ", order_id)
@@ -167,10 +170,12 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
                                         id= order_id)
         
         changeamountrequests = []
+        total_amount = 0
         for book in existingOrder.order.booksInCart:
             change_request = database.ChangeAmountRequest(title = book.title, amount = book.quantity)
+            total_amount += book.quantity
             changeamountrequests.append(change_request)
-
+        #self.book_amount.record(total_amount)
         database_prepare_request = database.PrepareRequestDatabase(id = order_id, books = changeamountrequests)
 
         try:
