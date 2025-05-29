@@ -52,6 +52,14 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     def __init__(self):
         self.orders = []
         self.executors = []
+        meter.create_observable_gauge(
+        name="cpu.usage.OrderQueue",
+        description="the real-time CPU clock speed",
+        callbacks=[self.cpu_frequency_callback],
+        unit="Percent")
+
+    def cpu_frequency_callback(self, result):
+        return [metrics.Observation(psutil.cpu_percent(interval=1))]
     
     #Initialize into orders
     queue_length_counter = meter.create_up_down_counter(
