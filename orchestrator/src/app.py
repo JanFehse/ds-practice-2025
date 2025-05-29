@@ -181,7 +181,8 @@ id_lock = threading.Lock()
 
 book_amount = meter.create_histogram(
     name="book.amount.order.orchestrator",
-    description="measures the amount of books in a order")
+    description="measures the amount of books in a order",
+    explicit_bucket_boundaries_advisory=[0,1,2,3,4,5,6,7,10])
 @app.route("/checkout", methods=["POST"])
 @tracer.start_as_current_span("checkout")
 def checkout():
@@ -216,7 +217,6 @@ def checkout():
             quantity=item.get("quantity")
         ))
         total_books += int(item.get("quantity"))
-    print(total_books)
     book_amount.record(total_books)
 
     
