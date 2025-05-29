@@ -69,7 +69,16 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         time.sleep(1)
         self.ElectLeader(Empty(), Empty())
         threading.Thread(target=self.checkToken, args=[]).start()
+        
+        meter.create_observable_gauge(
+        name="amount.executors.Executor",
+        description="The amount of running executors",
+        callbacks=[self.executor_number_callback],
+        unit="integer")
         return
+
+    def executor_number_callback(self, result):
+        return [metrics.Observation(len(self.executors))]
     
     def ElectLeader(self, request, context):
         #myip = socket.gethostbyname(socket.gethostname())
