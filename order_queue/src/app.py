@@ -53,10 +53,18 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         self.orders = []
         self.executors = []
         meter.create_observable_gauge(
-        name="cpu.usage.OrderQueue",
-        description="the real-time CPU clock speed",
-        callbacks=[self.cpu_frequency_callback],
-        unit="Percent")
+            name="cpu.usage.OrderQueue",
+            description="the real-time CPU clock speed",
+            callbacks=[self.cpu_frequency_callback],
+            unit="Percent"
+        )
+        self.enqueue_times = {}
+        self.residence_time_histogram = meter.create_histogram(
+            name="order_queue_residence_time_seconds",
+            unit="s",
+            description="Time orders spend in the queue before being dequeued",
+            explicit_bucket_boundaries_advisory=[0.1, 0.25, 0.5, 1, 2, 3, 5, 10, 60]  # Buckets for histogram
+        )
 
     def cpu_frequency_callback(self, result):
         return [metrics.Observation(psutil.cpu_percent(interval=1))]
@@ -66,6 +74,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
     "queue.length.counter", unit="1", description="Counts the length of the queue"
     )
     def EnqueueOrder(self, request, context):
+        self.enqueue_times[request.info.id] = time.time() # for time tracking
         heapq.heappush(self.orders, (self._get_priority(request), request))
         response = order.ErrorResponse()
         response.error = False
@@ -77,6 +86,14 @@ class OrderQueueService(order_queue_grpc.OrderQueueServiceServicer):
         if self.orders:
             _, deq_order = heapq.heappop(self.orders)
             print(f"---Order {deq_order.info.id} dequeued---")
+            
+            # time tracking
+            order_id = deq_order.info.id
+            enqueue_time = self.enqueue_times.pop(order_id, None)
+            if enqueue_time is not None:
+                residence_time = time.time() - enqueue_time
+                self.residence_time_histogram.record(residence_time)
+                
             response = order_queue.DequeueOrderResponse(order=deq_order)
             self.queue_length_counter.add(-1)
         else:
