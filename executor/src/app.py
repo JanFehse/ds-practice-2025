@@ -9,6 +9,11 @@ from google.protobuf.empty_pb2 import Empty
 
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
 from opentelemetry import metrics
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.metrics import MeterProvider
@@ -18,12 +23,18 @@ resource = Resource.create(attributes={
         SERVICE_NAME: "executor"
     })
 
+tracerProvider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="observability:4317", insecure=True))
+tracerProvider.add_span_processor(processor)
+trace.set_tracer_provider(tracerProvider)
+
 reader = PeriodicExportingMetricReader(
     OTLPMetricExporter(endpoint="observability:4317", insecure=True)
 )
 meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
 metrics.set_meter_provider(meterProvider)
 
+tracer = trace.get_tracer("executor.tracer")
 meter = metrics.get_meter("executor.meter")
 
 
@@ -47,6 +58,7 @@ import database.database_pb2_grpc as database_grpc
 import grpc
 
 # Create a class to define the server functions
+@tracer.start_as_current_span("process_order")
 class ExecutorService(executor_grpc.ExecutorServiceServicer):
     wait_time = 5
     executors = []
@@ -139,7 +151,6 @@ class ExecutorService(executor_grpc.ExecutorServiceServicer):
         print("processing order with id: ", order_id)
         #two phase commit
         ready_votes = []
-        #TODO calculate price??
         payment_prepare_request = payment.PrepareRequestPayment(name = existingOrder.order.name, 
                                         CreditCard = existingOrder.order.CreditCard,
                                         BillingAddress=  existingOrder.order.BillingAddress,

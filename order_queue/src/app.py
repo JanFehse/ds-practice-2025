@@ -8,6 +8,7 @@ import threading
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from google.protobuf.empty_pb2 import Empty
+import psutil
 
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 

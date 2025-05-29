@@ -8,6 +8,25 @@ from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from google.protobuf.empty_pb2 import Empty
 
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
+from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+resource = Resource.create(attributes={
+        SERVICE_NAME: "database"
+    })
+
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint="observability:4317", insecure=True)
+)
+meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(meterProvider)
+
+meter = metrics.get_meter("database.meter")
+
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -63,12 +82,17 @@ class DatabaseService(database_grpc.DatabaseServiceServicer):
 class PrimaryDatabaseService(DatabaseService):
     
     follower = []
+
+    book_stock_counter = meter.create_up_down_counter(
+    "book.stock.counter", unit="1", description="Counts the number of books in the database"
+    )
     
     def __init__(self, am_primary):
         super().__init__()
         self.locked_books = {}
         for title in self.store:
             self.locked_books[title] = threading.Lock()
+            self.book_stock_counter.add(self.store[title], {"book": title})
         self.queuedCommits = {}
         if(not am_primary):
             return
@@ -92,12 +116,14 @@ class PrimaryDatabaseService(DatabaseService):
     def Decrement(self, request, context):
         writeRequest = database.WriteRequest(title=request.title)
         writeRequest.new_stock = self.store[request.title] - request.amount
+        self.book_stock_counter.add(-request.amount, {"book": request.title})
         self.Write(writeRequest, Empty())
         return order.ErrorResponse(error=False)
     
     def Increment(self, request, context):
         writeRequest = database.WriteRequest(title=request.title)
         writeRequest.new_stock = self.store[request.title] + request.amount
+        self.book_stock_counter.add(request.amount, {"book": request.title})
         self.Write(writeRequest, Empty())
         return order.ErrorResponse(error=False)
 

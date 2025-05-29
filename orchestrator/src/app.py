@@ -34,7 +34,6 @@ meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
 metrics.set_meter_provider(meterProvider)
 
 tracer = trace.get_tracer("orchestrator.tracer")
-
 meter = metrics.get_meter("orchestrator.meter")
 
 # This set of lines are needed to import the gRPC stubs.
