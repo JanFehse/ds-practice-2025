@@ -77,7 +77,7 @@ class Test(unittest.TestCase):
     def test_to_many_books_B(self):
         data = deepcopy(self.valid_order)
         data['items'] = [self.books[2]]
-        data['creditCard'] = self.credit_cards[3]
+        data['creditCard'] = self.credit_cards[0]
         self.send_order(data)
 
     def test_wrong_creditCard(self):
@@ -87,4 +87,5 @@ class Test(unittest.TestCase):
         self.send_wrong_order(data)
 
 if __name__ == '__main__':
+    #python -m unittest single_tests.Test.test_wrong_creditCard
     unittest.main()
